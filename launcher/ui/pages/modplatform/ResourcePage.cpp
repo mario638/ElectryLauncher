@@ -254,7 +254,10 @@ void ResourcePage::updateSelectionButton()
 
     m_ui->resourceSelectionButton->setEnabled(true);
     if (auto current_pack = getCurrentPack(); current_pack) {
-        if (!current_pack->isVersionSelected(m_selected_version_index))
+        if (current_pack->versionsLoaded && current_pack->versions.empty()) {
+            m_ui->resourceSelectionButton->setEnabled(false);
+            qWarning() << tr("No version available for the selected pack");
+        } else if (!current_pack->isVersionSelected(m_selected_version_index))
             m_ui->resourceSelectionButton->setText(tr("Select %1 for download").arg(resourceString()));
         else
             m_ui->resourceSelectionButton->setText(tr("Deselect %1 for download").arg(resourceString()));
@@ -321,14 +324,9 @@ void ResourcePage::onSelectionChanged(QModelIndex curr, [[maybe_unused]] QModelI
     updateUi();
 }
 
-void ResourcePage::onVersionSelectionChanged(QString versionData)
+void ResourcePage::onVersionSelectionChanged(int index)
 {
-    if (versionData.isNull() || versionData.isEmpty()) {
-        m_selected_version_index = -1;
-        return;
-    }
-
-    m_selected_version_index = m_ui->versionSelectionBox->currentData().toInt();
+    m_selected_version_index = index;
     updateSelectionButton();
 }
 
