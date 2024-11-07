@@ -19,7 +19,7 @@ set(Launcher_Copyright_Mac "© 2024-2024 ElectryStudios, © 2022-2024 Prism Laun
 set(Launcher_Copyright "${Launcher_Copyright}" PARENT_SCOPE)
 set(Launcher_Domain "prismlauncher.org" PARENT_SCOPE)
 set(Launcher_UserAgent "${Launcher_CommonName}/${Launcher_VERSION_NAME}" PARENT_SCOPE)
-set(Launcher_ConfigFile "prismlauncher.cfg" PARENT_SCOPE)
+set(Launcher_ConfigFile "electrylauncher.cfg" PARENT_SCOPE)
 set(Launcher_Git "https://github.com/PrismLauncher/PrismLauncher" PARENT_SCOPE)
 set(Launcher_DesktopFileName "org.prismlauncher.PrismLauncher.desktop" PARENT_SCOPE)
 set(Launcher_SVGFileName "org.prismlauncher.PrismLauncher.svg" PARENT_SCOPE)
