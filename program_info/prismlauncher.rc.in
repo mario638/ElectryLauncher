@@ -15,10 +15,10 @@ BEGIN
         BEGIN
                 BLOCK "000004b0"
                 BEGIN
-                        VALUE "CompanyName", "Electry & MultiMC & Prism Launcher Contributors"
-                        VALUE "FileDescription", "Electry Launcher"
+                        VALUE "CompanyName", "MultiMC & Prism Launcher Contributors"
+                        VALUE "FileDescription", "Prism Launcher"
                         VALUE "FileVersion", "@Launcher_VERSION_NAME4@"
-                        VALUE "ProductName", "Electry Launcher"
+                        VALUE "ProductName", "Prism Launcher"
                         VALUE "ProductVersion", "@Launcher_VERSION_NAME4@"
                 END
         END

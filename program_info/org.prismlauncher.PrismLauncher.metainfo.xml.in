@@ -2,8 +2,8 @@
 <component type="desktop">
   <id>org.prismlauncher.PrismLauncher</id>
   <launchable type="desktop-id">org.prismlauncher.PrismLauncher.desktop</launchable>
-  <name>Electry Launcher</name>
-  <developer_name>ElectryStudios</developer_name>
+  <name>Prism Launcher</name>
+  <developer_name>Prism Launcher Contributors</developer_name>
   <summary>A custom launcher for Minecraft that allows you to easily manage multiple installations of Minecraft at once</summary>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-only</project_license>
@@ -15,7 +15,7 @@
   <url type="contribute">https://github.com/PrismLauncher/PrismLauncher/blob/develop/CONTRIBUTING.md</url>
   <url type="translate">https://hosted.weblate.org/projects/prismlauncher/launcher</url>
   <description>
-    <p>Electry Launcher is a custom launcher for Minecraft that focuses on predictability, long term stability and simplicity.</p>
+    <p>Prism Launcher is a custom launcher for Minecraft that focuses on predictability, long term stability and simplicity.</p>
     <p>Features:</p>
     <ul>
       <li>Easily install game modifications, such as Fabric, Forge and Quilt</li>
