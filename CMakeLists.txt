@@ -174,7 +174,7 @@ endif()
 
 ######## Set URLs ########
 set(Launcher_NEWS_RSS_URL "" CACHE STRING "URL to fetch Prism Launcher's news RSS feed from.")
-set(Launcher_NEWS_OPEN_URL "https://electrycraft.es/" CACHE STRING "URL that gets opened when the user clicks 'More News'")
+set(Launcher_NEWS_OPEN_URL "" CACHE STRING "URL that gets opened when the user clicks 'More News'")
 set(Launcher_HELP_URL "https://discord.electrycraft.es" CACHE STRING "URL (with arg %1 to be substituted with page-id) that gets opened when the user requests help")
 set(Launcher_LOGIN_CALLBACK_URL "https://electrycraft.es/sesion-iniciada/" CACHE STRING "URL that gets opened when the user successfully logins.")
 set(Launcher_FMLLIBS_BASE_URL "https://files.prismlauncher.org/fmllibs/" CACHE STRING "URL for FML Libraries.")

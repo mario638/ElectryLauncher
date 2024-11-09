@@ -535,7 +535,7 @@
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Close &amp;Window</string>
+    <string>Cerrar &amp;Window</string>
    </property>
    <property name="toolTip">
     <string>Close the current window</string>
@@ -726,7 +726,7 @@
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Help</string>
+    <string>Ayuda</string>
    </property>
    <property name="toolTip">
     <string>Get help with %1 or Minecraft.</string>
@@ -747,7 +747,7 @@
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>%1 &amp;Help</string>
+    <string>%1 &amp;Ayuda</string>
    </property>
    <property name="toolTip">
     <string>Open the %1 wiki</string>
