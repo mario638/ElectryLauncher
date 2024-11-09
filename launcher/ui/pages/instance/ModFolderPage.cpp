@@ -77,11 +77,11 @@ ModFolderPage::ModFolderPage(BaseInstance* inst, std::shared_ptr<ModFolderModel>
     // This is structured like that so that these changes
     // do not affect the Resource pack and Shader pack tabs
     {
-        ui->actionDownloadItem->setText(tr("Download mods"));
+        ui->actionDownloadItem->setText(tr("Descargar mods"));
         ui->actionDownloadItem->setToolTip(tr("Download mods from online mod platforms"));
         ui->actionDownloadItem->setEnabled(true);
-        ui->actionAddItem->setText(tr("Add file"));
-        ui->actionAddItem->setToolTip(tr("Add a locally downloaded file"));
+        ui->actionAddItem->setText(tr("Añadir archivo"));
+        ui->actionAddItem->setToolTip(tr("Añadir un archivo descargado localmente"));
 
         ui->actionsToolbar->insertActionBefore(ui->actionAddItem, ui->actionDownloadItem);
 
@@ -99,7 +99,7 @@ ModFolderPage::ModFolderPage(BaseInstance* inst, std::shared_ptr<ModFolderModel>
         update->setToolTip(tr("Try to check or update all selected mods (all mods if none are selected)"));
         connect(update, &QAction::triggered, this, &ModFolderPage::updateMods);
 
-        auto updateWithDeps = updateMenu->addAction(tr("Verify Dependencies"));
+        auto updateWithDeps = updateMenu->addAction(tr("Verificar dependencias"));
         updateWithDeps->setToolTip(
             tr("Try to update and check for missing dependencies all selected mods (all mods if none are selected)"));
         connect(updateWithDeps, &QAction::triggered, this, [this] { updateMods(true); });
@@ -109,7 +109,7 @@ ModFolderPage::ModFolderPage(BaseInstance* inst, std::shared_ptr<ModFolderModel>
         connect(depsDisabled.get(), &Setting::SettingChanged, this,
                 [updateWithDeps](const Setting& setting, QVariant value) { updateWithDeps->setVisible(!value.toBool()); });
 
-        auto actionRemoveItemMetadata = updateMenu->addAction(tr("Reset update metadata"));
+        auto actionRemoveItemMetadata = updateMenu->addAction(tr("Resetear metadatos de actualizaciones"));
         actionRemoveItemMetadata->setToolTip(tr("Remove mod's metadata"));
         connect(actionRemoveItemMetadata, &QAction::triggered, this, &ModFolderPage::deleteModMetadata);
         actionRemoveItemMetadata->setEnabled(false);
@@ -120,12 +120,12 @@ ModFolderPage::ModFolderPage(BaseInstance* inst, std::shared_ptr<ModFolderModel>
         connect(ui->actionUpdateItem, &QAction::triggered, this, &ModFolderPage::updateMods);
         ui->actionsToolbar->insertActionBefore(ui->actionAddItem, ui->actionUpdateItem);
 
-        ui->actionVisitItemPage->setToolTip(tr("Go to mod's home page"));
+        ui->actionVisitItemPage->setToolTip(tr("Ir a la pagina del mod"));
         ui->actionsToolbar->addAction(ui->actionVisitItemPage);
         connect(ui->actionVisitItemPage, &QAction::triggered, this, &ModFolderPage::visitModPages);
 
-        auto changeVersion = new QAction(tr("Change Version"));
-        changeVersion->setToolTip(tr("Change mod version"));
+        auto changeVersion = new QAction(tr("Cambiar version del mod"));
+        changeVersion->setToolTip(tr("Cambiar version del mod"));
         changeVersion->setEnabled(false);
         ui->actionsToolbar->insertActionAfter(ui->actionUpdateItem, changeVersion);
         connect(changeVersion, &QAction::triggered, this, &ModFolderPage::changeModVersion);
@@ -144,11 +144,11 @@ ModFolderPage::ModFolderPage(BaseInstance* inst, std::shared_ptr<ModFolderModel>
                     auto selected = std::count_if(mods_list.cbegin(), mods_list.cend(),
                                                   [](Mod* v) { return v->metadata() != nullptr || v->homeurl().size() != 0; });
                     if (selected <= 1) {
-                        ui->actionVisitItemPage->setText(tr("Visit mod's page"));
-                        ui->actionVisitItemPage->setToolTip(tr("Go to mod's home page"));
+                        ui->actionVisitItemPage->setText(tr("Visitar pagina del mod"));
+                        ui->actionVisitItemPage->setToolTip(tr("Ir a la pagina del mod"));
                     } else {
-                        ui->actionVisitItemPage->setText(tr("Visit mods' pages"));
-                        ui->actionVisitItemPage->setToolTip(tr("Go to the pages of the selected mods"));
+                        ui->actionVisitItemPage->setText(tr("Visitar paginas de mods"));
+                        ui->actionVisitItemPage->setToolTip(tr("Ir a la pagina de los mods seleccionados"));
                     }
 
                     changeVersion->setEnabled(mods_list.length() == 1 && mods_list[0]->metadata() != nullptr);

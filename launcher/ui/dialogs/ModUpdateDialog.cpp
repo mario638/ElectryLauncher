@@ -52,8 +52,8 @@ ModUpdateDialog::ModUpdateDialog(QWidget* parent,
 {
     ReviewMessageBox::setGeometry(0, 0, 800, 600);
 
-    ui->explainLabel->setText(tr("You're about to update the following mods:"));
-    ui->onlyCheckedLabel->setText(tr("Only mods with a check will be updated!"));
+    ui->explainLabel->setText(tr("Vas a actualizar los siguientes mods:"));
+    ui->onlyCheckedLabel->setText(tr("Solo los mods marcados se actualizaran!"));
 }
 
 void ModUpdateDialog::checkCandidates()
@@ -424,25 +424,25 @@ void ModUpdateDialog::appendMod(CheckUpdateTask::UpdatableMod const& info, QStri
     item_top->setExpanded(true);
 
     auto provider_item = new QTreeWidgetItem(item_top);
-    provider_item->setText(0, tr("Provider: %1").arg(ModPlatform::ProviderCapabilities::readableName(info.provider)));
+    provider_item->setText(0, tr("Proveedor: %1").arg(ModPlatform::ProviderCapabilities::readableName(info.provider)));
 
     auto old_version_item = new QTreeWidgetItem(item_top);
-    old_version_item->setText(0, tr("Old version: %1").arg(info.old_version.isEmpty() ? tr("Not installed") : info.old_version));
+    old_version_item->setText(0, tr("Versión antigua: %1").arg(info.old_version.isEmpty() ? tr("No instalado") : info.old_version));
 
     auto new_version_item = new QTreeWidgetItem(item_top);
-    new_version_item->setText(0, tr("New version: %1").arg(info.new_version));
+    new_version_item->setText(0, tr("Versión nueva: %1").arg(info.new_version));
 
     if (info.new_version_type.has_value()) {
         auto new_version_type_itme = new QTreeWidgetItem(item_top);
-        new_version_type_itme->setText(0, tr("New Version Type: %1").arg(info.new_version_type.value().toString()));
+        new_version_type_itme->setText(0, tr("Nuevo tipo de versión: %1").arg(info.new_version_type.value().toString()));
     }
 
     if (!requiredBy.isEmpty()) {
         auto requiredByItem = new QTreeWidgetItem(item_top);
         if (requiredBy.length() == 1) {
-            requiredByItem->setText(0, tr("Required by: %1").arg(requiredBy.back()));
+            requiredByItem->setText(0, tr("Requerido por: %1").arg(requiredBy.back()));
         } else {
-            requiredByItem->setText(0, tr("Required by:"));
+            requiredByItem->setText(0, tr("Requerido por:"));
             auto i = 0;
             for (auto req : requiredBy) {
                 auto reqItem = new QTreeWidgetItem(requiredByItem);
@@ -456,7 +456,7 @@ void ModUpdateDialog::appendMod(CheckUpdateTask::UpdatableMod const& info, QStri
     }
 
     auto changelog_item = new QTreeWidgetItem(item_top);
-    changelog_item->setText(0, tr("Changelog of the latest version"));
+    changelog_item->setText(0, tr("Cambios de la última versión"));
 
     auto changelog = new QTreeWidgetItem(changelog_item);
     auto changelog_area = new QTextBrowser();
