@@ -79,7 +79,7 @@ InstanceWindow::InstanceWindow(InstancePtr instance, QWidget* parent) : QMainWin
         horizontalLayout->setContentsMargins(6, -1, 6, -1);
 
         auto btnHelp = new QPushButton(this);
-        btnHelp->setText(tr("Help"));
+        btnHelp->setText(tr("Ayuda"));
         horizontalLayout->addWidget(btnHelp);
         connect(btnHelp, &QPushButton::clicked, m_container, &PageContainer::help);
 
@@ -104,7 +104,7 @@ InstanceWindow::InstanceWindow(InstancePtr instance, QWidget* parent) : QMainWin
         updateButtons();
 
         m_closeButton = new QPushButton(this);
-        m_closeButton->setText(tr("Close"));
+        m_closeButton->setText(tr("Cerrar"));
         horizontalLayout->addWidget(m_closeButton);
         connect(m_closeButton, &QPushButton::clicked, this, &QMainWindow::close);
 

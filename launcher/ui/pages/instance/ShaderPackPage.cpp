@@ -49,8 +49,8 @@
 ShaderPackPage::ShaderPackPage(MinecraftInstance* instance, std::shared_ptr<ShaderPackFolderModel> model, QWidget* parent)
     : ExternalResourcesPage(instance, model, parent)
 {
-    ui->actionDownloadItem->setText(tr("Download shaders"));
-    ui->actionDownloadItem->setToolTip(tr("Download shaders from online platforms"));
+    ui->actionDownloadItem->setText(tr("Descargar shaders"));
+    ui->actionDownloadItem->setToolTip(tr("Descarga shaders de plataformas online"));
     ui->actionDownloadItem->setEnabled(true);
     connect(ui->actionDownloadItem, &QAction::triggered, this, &ShaderPackPage::downloadShaders);
     ui->actionsToolbar->insertActionBefore(ui->actionAddItem, ui->actionDownloadItem);

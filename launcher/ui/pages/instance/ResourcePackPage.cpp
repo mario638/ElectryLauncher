@@ -46,8 +46,8 @@
 ResourcePackPage::ResourcePackPage(MinecraftInstance* instance, std::shared_ptr<ResourcePackFolderModel> model, QWidget* parent)
     : ExternalResourcesPage(instance, model, parent)
 {
-    ui->actionDownloadItem->setText(tr("Download packs"));
-    ui->actionDownloadItem->setToolTip(tr("Download resource packs from online platforms"));
+    ui->actionDownloadItem->setText(tr("Descargar packs"));
+    ui->actionDownloadItem->setToolTip(tr("Descarga paquetes de recursos de plataformas online"));
     ui->actionDownloadItem->setEnabled(true);
     connect(ui->actionDownloadItem, &QAction::triggered, this, &ResourcePackPage::downloadRPs);
     ui->actionsToolbar->insertActionBefore(ui->actionAddItem, ui->actionDownloadItem);
