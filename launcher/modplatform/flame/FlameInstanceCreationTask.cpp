@@ -36,7 +36,7 @@
 #include "FlameInstanceCreationTask.h"
 
 #include "QObjectPtr.h"
-#include "minecraft/mod/tasks/LocalModUpdateTask.h"
+#include "minecraft/mod/tasks/LocalResourceUpdateTask.h"
 #include "modplatform/flame/FileResolvingTask.h"
 #include "modplatform/flame/FlameAPI.h"
 #include "modplatform/flame/FlameModIndex.h"
@@ -439,7 +439,7 @@ bool FlameCreationTask::createInstance()
 
     m_mod_id_resolver.reset(new Flame::FileResolvingTask(APPLICATION->network(), m_pack));
     connect(m_mod_id_resolver.get(), &Flame::FileResolvingTask::succeeded, this, [this, &loop] { idResolverSucceeded(loop); });
-    connect(m_mod_id_resolver.get(), &Flame::FileResolvingTask::failed, [&](QString reason) {
+    connect(m_mod_id_resolver.get(), &Flame::FileResolvingTask::failed, [this, &loop](QString reason) {
         m_mod_id_resolver.reset();
         setError(tr("Unable to resolve mod IDs:\n") + reason);
         loop.quit();
@@ -561,7 +561,7 @@ void FlameCreationTask::setupDownloadJob(QEventLoop& loop)
         m_files_job.reset();
         validateZIPResources(loop);
     });
-    connect(m_files_job.get(), &NetJob::failed, [&](QString reason) {
+    connect(m_files_job.get(), &NetJob::failed, [this](QString reason) {
         m_files_job.reset();
         setError(reason);
     });
@@ -676,6 +676,7 @@ void FlameCreationTask::validateZIPResources(QEventLoop& loop)
                 break;
         }
     }
+    // TODO make this work with other sorts of resource
     auto task = makeShared<ConcurrentTask>(this, "CreateModMetadata", APPLICATION->settings()->get("NumberOfConcurrentTasks").toInt());
     auto results = m_mod_id_resolver->getResults().files;
     auto folder = FS::PathCombine(m_stagingPath, "minecraft", "mods", ".index");
@@ -683,7 +684,7 @@ void FlameCreationTask::validateZIPResources(QEventLoop& loop)
         if (file.targetFolder != "mods" || (file.version.fileName.endsWith(".zip") && !zipMods.contains(file.version.fileName))) {
             continue;
         }
-        task->addTask(makeShared<LocalModUpdateTask>(folder, file.pack, file.version));
+        task->addTask(makeShared<LocalResourceUpdateTask>(folder, file.pack, file.version));
     }
     connect(task.get(), &Task::finished, &loop, &QEventLoop::quit);
     m_process_update_file_info_job = task;
