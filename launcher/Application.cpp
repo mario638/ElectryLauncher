@@ -59,8 +59,6 @@
 #include "ui/pages/BasePageProvider.h"
 #include "ui/pages/global/APIPage.h"
 #include "ui/pages/global/AccountListPage.h"
-#include "ui/pages/global/CustomCommandsPage.h"
-#include "ui/pages/global/EnvironmentVariablesPage.h"
 #include "ui/pages/global/ExternalToolsPage.h"
 #include "ui/pages/global/JavaPage.h"
 #include "ui/pages/global/LanguagePage.h"
@@ -156,6 +154,7 @@
 
 #if defined Q_OS_WIN32
 #include <windows.h>
+#include <QStyleHints>
 #include "WindowsConsole.h"
 #endif
 
@@ -226,8 +225,8 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
     setApplicationName(BuildConfig.LAUNCHER_NAME);
     setApplicationDisplayName(QString("%1 %2").arg(BuildConfig.LAUNCHER_DISPLAYNAME, BuildConfig.printableVersionString()));
     setApplicationVersion(BuildConfig.printableVersionString() + "\n" + BuildConfig.GIT_COMMIT);
-    setDesktopFileName(BuildConfig.LAUNCHER_DESKTOPFILENAME);
-    startTime = QDateTime::currentDateTime();
+    setDesktopFileName(BuildConfig.LAUNCHER_APPID);
+    m_startTime = QDateTime::currentDateTime();
 
     // Don't quit on hiding the last window
     this->setQuitOnLastWindowClosed(false);
@@ -710,7 +709,9 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
 
         m_settings->registerSetting("ToolbarsLocked", false);
 
+        // Instance
         m_settings->registerSetting("InstSortMode", "Name");
+        m_settings->registerSetting("InstRenamingMode", "AskEverytime");
         m_settings->registerSetting("SelectedInstance", QString());
 
         // Window state and geometry
@@ -802,8 +803,6 @@ Application::Application(int& argc, char** argv) : QApplication(argc, argv)
             m_globalSettingsProvider->addPage<MinecraftPage>();
             m_globalSettingsProvider->addPage<JavaPage>();
             m_globalSettingsProvider->addPage<LanguagePage>();
-            m_globalSettingsProvider->addPage<CustomCommandsPage>();
-            m_globalSettingsProvider->addPage<EnvironmentVariablesPage>();
             m_globalSettingsProvider->addPage<ProxyPage>();
             m_globalSettingsProvider->addPage<ExternalToolsPage>();
             m_globalSettingsProvider->addPage<AccountListPage>();
@@ -1113,8 +1112,16 @@ bool Application::createSetupWizard()
         // set default theme after going into theme wizard
         if (!validIcons)
             settings()->set("IconTheme", QString("pe_colored"));
-        if (!validWidgets)
-            settings()->set("ApplicationTheme", QString("system"));
+        if (!validWidgets) {
+#if defined(Q_OS_WIN32) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
+            const QString style =
+                QGuiApplication::styleHints()->colorScheme() == Qt::ColorScheme::Dark ? QStringLiteral("dark") : QStringLiteral("bright");
+#else
+            const QString style = QStringLiteral("system");
+#endif
+
+            settings()->set("ApplicationTheme", style);
+        }
 
         m_themeManager->applyCurrentlySelectedTheme(true);
 
@@ -1181,6 +1188,9 @@ bool Application::event(QEvent* event)
 #endif
 
     if (event->type() == QEvent::FileOpen) {
+        if (!m_mainWindow) {
+            showMainWindow(false);
+        }
         auto ev = static_cast<QFileOpenEvent*>(event);
         m_mainWindow->processURLs({ ev->url() });
     }
@@ -1313,6 +1323,9 @@ void Application::messageReceived(const QByteArray& message)
         if (url.isEmpty()) {
             qWarning() << "Received" << command << "message without a zip path/URL.";
             return;
+        }
+        if (!m_mainWindow) {
+            showMainWindow(false);
         }
         m_mainWindow->processURLs({ normalizeImportUrl(url) });
     } else if (command == "launch") {
