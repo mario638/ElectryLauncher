@@ -12,7 +12,7 @@ This project is a Fork of [Prism Launcher](https://github.com/PrismLauncher/Pris
 
 # Installation
 
-Visit the [Releases page](https://github.com/Diegiwg/PrismLauncher-Cracked/releases/) and download the appropriate version for your system:
+Visit the [Releases page](https://github.com/Diegiwg/PrismLauncher-Cracked/releases/) and download the appropriate version for your system (as of ver9.4):
 
 ## Windows
 - **Standard Installer**: `PrismLauncher-Windows-MinGW-w64-Setup-9.4.exe`
