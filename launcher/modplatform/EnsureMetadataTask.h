@@ -1,27 +1,26 @@
 #pragma once
 
 #include "ModIndex.h"
-#include "net/NetJob.h"
 
 #include "modplatform/helpers/HashUtils.h"
 
-#include "minecraft/mod/Resource.h"
 #include "tasks/ConcurrentTask.h"
 
+#include <QDir>
+
 class Mod;
-class QDir;
 
 class EnsureMetadataTask : public Task {
     Q_OBJECT
 
    public:
-    EnsureMetadataTask(Resource*, QDir, ModPlatform::ResourceProvider = ModPlatform::ResourceProvider::MODRINTH);
-    EnsureMetadataTask(QList<Resource*>&, QDir, ModPlatform::ResourceProvider = ModPlatform::ResourceProvider::MODRINTH);
-    EnsureMetadataTask(QHash<QString, Resource*>&, QDir, ModPlatform::ResourceProvider = ModPlatform::ResourceProvider::MODRINTH);
+    EnsureMetadataTask(Mod*, QDir, ModPlatform::ResourceProvider = ModPlatform::ResourceProvider::MODRINTH);
+    EnsureMetadataTask(QList<Mod*>&, QDir, ModPlatform::ResourceProvider = ModPlatform::ResourceProvider::MODRINTH);
+    EnsureMetadataTask(QHash<QString, Mod*>&, QDir, ModPlatform::ResourceProvider = ModPlatform::ResourceProvider::MODRINTH);
 
     ~EnsureMetadataTask() = default;
 
-    Task::Ptr getHashingTask() { return m_hashingTask; }
+    Task::Ptr getHashingTask() { return m_hashing_task; }
 
    public slots:
     bool abort() override;
@@ -30,36 +29,35 @@ class EnsureMetadataTask : public Task {
 
    private:
     // FIXME: Move to their own namespace
-    Task::Ptr modrinthVersionsTask();
-    Task::Ptr modrinthProjectsTask();
+    auto modrinthVersionsTask() -> Task::Ptr;
+    auto modrinthProjectsTask() -> Task::Ptr;
 
-    Task::Ptr flameVersionsTask();
-    Task::Ptr flameProjectsTask();
+    auto flameVersionsTask() -> Task::Ptr;
+    auto flameProjectsTask() -> Task::Ptr;
 
     // Helpers
     enum class RemoveFromList { Yes, No };
-    void emitReady(Resource*, QString key = {}, RemoveFromList = RemoveFromList::Yes);
-    void emitFail(Resource*, QString key = {}, RemoveFromList = RemoveFromList::Yes);
+    void emitReady(Mod*, QString key = {}, RemoveFromList = RemoveFromList::Yes);
+    void emitFail(Mod*, QString key = {}, RemoveFromList = RemoveFromList::Yes);
 
     // Hashes and stuff
-    Hashing::Hasher::Ptr createNewHash(Resource*);
-    QString getExistingHash(Resource*);
+    auto createNewHash(Mod*) -> Hashing::Hasher::Ptr;
+    auto getExistingHash(Mod*) -> QString;
 
    private slots:
-    void updateMetadata(ModPlatform::IndexedPack& pack, ModPlatform::IndexedVersion& ver, Resource*);
-    void updateMetadataCallback(ModPlatform::IndexedPack& pack, Resource* resource);
+    void modrinthCallback(ModPlatform::IndexedPack& pack, ModPlatform::IndexedVersion& ver, Mod*);
+    void flameCallback(ModPlatform::IndexedPack& pack, ModPlatform::IndexedVersion& ver, Mod*);
 
    signals:
-    void metadataReady(Resource*);
-    void metadataFailed(Resource*);
+    void metadataReady(Mod*);
+    void metadataFailed(Mod*);
 
    private:
-    QHash<QString, Resource*> m_resources;
-    QDir m_indexDir;
+    QHash<QString, Mod*> m_mods;
+    QDir m_index_dir;
     ModPlatform::ResourceProvider m_provider;
 
-    QHash<QString, ModPlatform::IndexedVersion> m_tempVersions;
-    Task::Ptr m_hashingTask;
-    Task::Ptr m_currentTask;
-    QHash<QString, Task::Ptr> m_updateMetadataTasks;
+    QHash<QString, ModPlatform::IndexedVersion> m_temp_versions;
+    ConcurrentTask::Ptr m_hashing_task;
+    Task::Ptr m_current_task;
 };

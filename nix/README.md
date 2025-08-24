@@ -4,7 +4,7 @@
 
 Prism Launcher is packaged in [nixpkgs](https://github.com/NixOS/nixpkgs/) since 22.11.
 
-Check the [NixOS Wiki](https://wiki.nixos.org/wiki/Prism_Launcher) for up-to-date instructions.
+See [Package variants](#package-variants) for a list of available packages.
 
 ## Installing a development release (flake)
 
@@ -44,6 +44,9 @@ Example:
       # Note that this may break the reproducibility mentioned above, and you might not be able to access the binary cache
       #
       # inputs.nixpkgs.follows = "nixpkgs";
+
+      # This is not required for Flakes
+      inputs.flake-compat.follows = "";
     };
   };
 
@@ -89,6 +92,9 @@ Example:
       # Note that this may break the reproducibility mentioned above, and you might not be able to access the binary cache
       #
       # inputs.nixpkgs.follows = "nixpkgs";
+
+      # This is not required for Flakes
+      inputs.flake-compat.follows = "";
     };
   };
 
@@ -217,3 +223,4 @@ The following parameters can be overridden:
 - `jdks` (default: `[ jdk21 jdk17 jdk8 ]`) Java runtimes added to `PRISMLAUNCHER_JAVA_PATHS` variable
 - `msaClientID` (default: `null`, requires full rebuild!) Client ID used for Microsoft Authentication
 - `textToSpeechSupport` (default: `isLinux`) Turn on/off support for text-to-speech on Linux (macOS will always have this)
+- `withWaylandGLFW` (default: `isLinux`) Build with support for native Wayland via a custom GLFW

@@ -1,16 +1,17 @@
 #pragma once
 
 #include "modplatform/CheckUpdateTask.h"
+#include "net/NetJob.h"
 
 class FlameCheckUpdate : public CheckUpdateTask {
     Q_OBJECT
 
    public:
-    FlameCheckUpdate(QList<Resource*>& resources,
+    FlameCheckUpdate(QList<Mod*>& mods,
                      std::list<Version>& mcVersions,
                      QList<ModPlatform::ModLoaderType> loadersList,
-                     std::shared_ptr<ResourceFolderModel> resourceModel)
-        : CheckUpdateTask(resources, mcVersions, std::move(loadersList), std::move(resourceModel))
+                     std::shared_ptr<ModFolderModel> mods_folder)
+        : CheckUpdateTask(mods, mcVersions, loadersList, mods_folder)
     {}
 
    public slots:
@@ -18,12 +19,12 @@ class FlameCheckUpdate : public CheckUpdateTask {
 
    protected slots:
     void executeTask() override;
-   private slots:
-    void getLatestVersionCallback(Resource* resource, std::shared_ptr<QByteArray> response);
-    void collectBlockedMods();
 
    private:
-    Task::Ptr m_task = nullptr;
+    ModPlatform::IndexedPack getProjectInfo(ModPlatform::IndexedVersion& ver_info);
+    ModPlatform::IndexedVersion getFileInfo(int addonId, int fileId);
 
-    QHash<Resource*, QString> m_blocked;
+    NetJob* m_net_job = nullptr;
+
+    bool m_was_aborted = false;
 };

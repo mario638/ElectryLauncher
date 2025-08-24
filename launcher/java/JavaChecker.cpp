@@ -44,8 +44,8 @@
 #include "FileSystem.h"
 #include "java/JavaUtils.h"
 
-JavaChecker::JavaChecker(QString path, QString args, int minMem, int maxMem, int permGen, int id)
-    : Task(), m_path(path), m_args(args), m_minMem(minMem), m_maxMem(maxMem), m_permGen(permGen), m_id(id)
+JavaChecker::JavaChecker(QString path, QString args, int minMem, int maxMem, int permGen, int id, QObject* parent)
+    : Task(parent), m_path(path), m_args(args), m_minMem(minMem), m_maxMem(maxMem), m_permGen(permGen), m_id(id)
 {}
 
 void JavaChecker::executeTask()
@@ -171,7 +171,7 @@ void JavaChecker::finished(int exitcode, QProcess::ExitStatus status)
     auto os_arch = results["os.arch"];
     auto java_version = results["java.version"];
     auto java_vendor = results["java.vendor"];
-    bool is_64 = os_arch == "x86_64" || os_arch == "amd64" || os_arch == "aarch64" || os_arch == "arm64" || os_arch == "riscv64";
+    bool is_64 = os_arch == "x86_64" || os_arch == "amd64" || os_arch == "aarch64" || os_arch == "arm64";
 
     result.validity = Result::Validity::Valid;
     result.is_64bit = is_64;

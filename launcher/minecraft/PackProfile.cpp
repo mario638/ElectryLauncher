@@ -173,32 +173,29 @@ static bool savePackProfile(const QString& filename, const ComponentContainer& c
 }
 
 // Read the given file into component containers
-static PackProfile::Result loadPackProfile(PackProfile* parent,
-                                           const QString& filename,
-                                           const QString& componentJsonPattern,
-                                           ComponentContainer& container)
+static bool loadPackProfile(PackProfile* parent,
+                            const QString& filename,
+                            const QString& componentJsonPattern,
+                            ComponentContainer& container)
 {
     QFile componentsFile(filename);
     if (!componentsFile.exists()) {
-        auto message = QObject::tr("Components file %1 doesn't exist. This should never happen.").arg(filename);
-        qCWarning(instanceProfileC) << message;
-        return PackProfile::Result::Error(message);
+        qCWarning(instanceProfileC) << "Components file" << filename << "doesn't exist. This should never happen.";
+        return false;
     }
     if (!componentsFile.open(QFile::ReadOnly)) {
-        auto message = QObject::tr("Couldn't open %1 for reading: %2").arg(componentsFile.fileName(), componentsFile.errorString());
-        qCCritical(instanceProfileC) << message;
+        qCCritical(instanceProfileC) << "Couldn't open" << componentsFile.fileName() << " for reading:" << componentsFile.errorString();
         qCWarning(instanceProfileC) << "Ignoring overridden order";
-        return PackProfile::Result::Error(message);
+        return false;
     }
 
     // and it's valid JSON
     QJsonParseError error;
     QJsonDocument doc = QJsonDocument::fromJson(componentsFile.readAll(), &error);
     if (error.error != QJsonParseError::NoError) {
-        auto message = QObject::tr("Couldn't parse %1 as json: %2").arg(componentsFile.fileName(), error.errorString());
-        qCCritical(instanceProfileC) << message;
+        qCCritical(instanceProfileC) << "Couldn't parse" << componentsFile.fileName() << ":" << error.errorString();
         qCWarning(instanceProfileC) << "Ignoring overridden order";
-        return PackProfile::Result::Error(message);
+        return false;
     }
 
     // and then read it and process it if all above is true.
@@ -215,13 +212,11 @@ static PackProfile::Result loadPackProfile(PackProfile* parent,
             container.append(componentFromJsonV1(parent, componentJsonPattern, comp_obj));
         }
     } catch ([[maybe_unused]] const JSONValidationError& err) {
-        auto message = QObject::tr("Couldn't parse %1 : bad file format").arg(componentsFile.fileName());
-        qCCritical(instanceProfileC) << message;
-        qCWarning(instanceProfileC) << "error:" << err.what();
+        qCCritical(instanceProfileC) << "Couldn't parse" << componentsFile.fileName() << ": bad file format";
         container.clear();
-        return PackProfile::Result::Error(message);
+        return false;
     }
-    return PackProfile::Result::Success();
+    return true;
 }
 
 // END: component file format
@@ -288,43 +283,44 @@ void PackProfile::save_internal()
     d->dirty = false;
 }
 
-PackProfile::Result PackProfile::load()
+bool PackProfile::load()
 {
     auto filename = componentsFilePath();
 
     // load the new component list and swap it with the current one...
     ComponentContainer newComponents;
-    if (auto result = loadPackProfile(this, filename, patchesPattern(), newComponents); !result) {
+    if (!loadPackProfile(this, filename, patchesPattern(), newComponents)) {
         qCritical() << d->m_instance->name() << "|" << "Failed to load the component config";
-        return result;
-    }
-    // FIXME: actually use fine-grained updates, not this...
-    beginResetModel();
-    // disconnect all the old components
-    for (auto component : d->components) {
-        disconnect(component.get(), &Component::dataChanged, this, &PackProfile::componentDataChanged);
-    }
-    d->components.clear();
-    d->componentIndex.clear();
-    for (auto component : newComponents) {
-        if (d->componentIndex.contains(component->m_uid)) {
-            qWarning() << d->m_instance->name() << "|" << "Ignoring duplicate component entry" << component->m_uid;
-            continue;
+        return false;
+    } else {
+        // FIXME: actually use fine-grained updates, not this...
+        beginResetModel();
+        // disconnect all the old components
+        for (auto component : d->components) {
+            disconnect(component.get(), &Component::dataChanged, this, &PackProfile::componentDataChanged);
         }
-        connect(component.get(), &Component::dataChanged, this, &PackProfile::componentDataChanged);
-        d->components.append(component);
-        d->componentIndex[component->m_uid] = component;
+        d->components.clear();
+        d->componentIndex.clear();
+        for (auto component : newComponents) {
+            if (d->componentIndex.contains(component->m_uid)) {
+                qWarning() << d->m_instance->name() << "|" << "Ignoring duplicate component entry" << component->m_uid;
+                continue;
+            }
+            connect(component.get(), &Component::dataChanged, this, &PackProfile::componentDataChanged);
+            d->components.append(component);
+            d->componentIndex[component->m_uid] = component;
+        }
+        endResetModel();
+        d->loaded = true;
+        return true;
     }
-    endResetModel();
-    d->loaded = true;
-    return Result::Success();
 }
 
-PackProfile::Result PackProfile::reload(Net::Mode netmode)
+void PackProfile::reload(Net::Mode netmode)
 {
     // Do not reload when the update/resolve task is running. It is in control.
     if (d->m_updateTask) {
-        return Result::Success();
+        return;
     }
 
     // flush any scheduled saves to not lose state
@@ -333,11 +329,9 @@ PackProfile::Result PackProfile::reload(Net::Mode netmode)
     // FIXME: differentiate when a reapply is required by propagating state from components
     invalidateLaunchProfile();
 
-    if (auto result = load(); !result) {
-        return result;
+    if (load()) {
+        resolve(netmode);
     }
-    resolve(netmode);
-    return Result::Success();
 }
 
 Task::Ptr PackProfile::getCurrentTask()
@@ -517,9 +511,13 @@ QVariant PackProfile::data(const QModelIndex& index, int role) const
 
     switch (role) {
         case Qt::CheckStateRole: {
-            if (column == NameColumn)
-                return patch->isEnabled() ? Qt::Checked : Qt::Unchecked;
-            return QVariant();
+            switch (column) {
+                case NameColumn: {
+                    return patch->isEnabled() ? Qt::Checked : Qt::Unchecked;
+                }
+                default:
+                    return QVariant();
+            }
         }
         case Qt::DisplayRole: {
             switch (column) {
@@ -748,7 +746,7 @@ bool PackProfile::removeComponent_internal(ComponentPtr patch)
     }
 
     // FIXME: we need a generic way of removing local resources, not just jar mods...
-    auto preRemoveJarMod = [this](LibraryPtr jarMod) -> bool {
+    auto preRemoveJarMod = [&](LibraryPtr jarMod) -> bool {
         if (!jarMod->isLocal()) {
             return true;
         }

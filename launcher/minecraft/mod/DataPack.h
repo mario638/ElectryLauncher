@@ -35,6 +35,8 @@ class Version;
 class DataPack : public Resource {
     Q_OBJECT
    public:
+    using Ptr = shared_qobject_ptr<Resource>;
+
     DataPack(QObject* parent = nullptr) : Resource(parent) {}
     DataPack(QFileInfo file_info) : Resource(file_info) {}
 
@@ -56,8 +58,6 @@ class DataPack : public Resource {
 
     [[nodiscard]] int compare(Resource const& other, SortType type) const override;
     [[nodiscard]] bool applyFilter(QRegularExpression filter) const override;
-
-    virtual QString directory() { return "/data"; }
 
    protected:
     mutable QMutex m_data_lock;

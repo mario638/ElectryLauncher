@@ -170,7 +170,7 @@ bool validate(QFileInfo file)
 
 }  // namespace WorldSaveUtils
 
-LocalWorldSaveParseTask::LocalWorldSaveParseTask(int token, WorldSave& save) : Task(false), m_token(token), m_save(save) {}
+LocalWorldSaveParseTask::LocalWorldSaveParseTask(int token, WorldSave& save) : Task(nullptr, false), m_token(token), m_save(save) {}
 
 bool LocalWorldSaveParseTask::abort()
 {
@@ -180,10 +180,8 @@ bool LocalWorldSaveParseTask::abort()
 
 void LocalWorldSaveParseTask::executeTask()
 {
-    if (!WorldSaveUtils::process(m_save)) {
-        emitFailed("this is not a world");
+    if (!WorldSaveUtils::process(m_save))
         return;
-    }
 
     if (m_aborted)
         emitAborted();

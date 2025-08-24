@@ -38,27 +38,41 @@
 #include <QDialog>
 #include <memory>
 
-#include "Application.h"
+#include <Application.h>
 #include "java/JavaChecker.h"
 #include "ui/pages/BasePage.h"
-#include "ui/widgets/MinecraftSettingsWidget.h"
 
 class SettingsObject;
 
-class MinecraftPage : public MinecraftSettingsWidget, public BasePage {
+namespace Ui {
+class MinecraftPage;
+}
+
+class MinecraftPage : public QWidget, public BasePage {
     Q_OBJECT
 
    public:
-    explicit MinecraftPage(QWidget* parent = nullptr) : MinecraftSettingsWidget(nullptr, parent) {}
-    ~MinecraftPage() override {}
+    explicit MinecraftPage(QWidget* parent = 0);
+    ~MinecraftPage();
 
     QString displayName() const override { return tr("Minecraft"); }
     QIcon icon() const override { return APPLICATION->getThemedIcon("minecraft"); }
     QString id() const override { return "minecraft-settings"; }
     QString helpPage() const override { return "Minecraft-settings"; }
-    bool apply() override
-    {
-        saveSettings();
-        return true;
-    }
+    bool apply() override;
+    void retranslate() override;
+
+   private:
+    void updateCheckboxStuff();
+    void applySettings();
+    void loadSettings();
+
+   private slots:
+    void on_maximizedCheckBox_clicked(bool checked);
+
+    void onUseNativeGLFWChanged(bool checked);
+    void onUseNativeOpenALChanged(bool checked);
+
+   private:
+    Ui::MinecraftPage* ui;
 };

@@ -40,6 +40,9 @@
 
 #include "modplatform/modrinth/ModrinthAPI.h"
 
+#include "minecraft/MinecraftInstance.h"
+#include "minecraft/PackProfile.h"
+
 #include <QSet>
 
 static ModrinthAPI api;
@@ -131,7 +134,6 @@ auto loadIndexedVersion(QJsonObject& obj) -> ModpackVersion
     auto gameVersions = Json::ensureArray(obj, "game_versions");
     if (!gameVersions.isEmpty()) {
         file.gameVersion = Json::ensureString(gameVersions[0]);
-        file.gameVersion = ModrinthAPI::mapMCVersionFromModrinth(file.gameVersion);
     }
     auto loaders = Json::requireArray(obj, "loaders");
     for (auto loader : loaders) {

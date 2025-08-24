@@ -19,8 +19,8 @@
 #pragma once
 
 #include <QDir>
-#include <QImage>
 #include <QJsonObject>
+#include <QPixmap>
 
 class SkinModel {
    public:
@@ -35,25 +35,23 @@ class SkinModel {
     QString getModelString() const;
     bool isValid() const;
     QString getPath() const { return m_path; }
-    QImage getTexture() const { return m_texture; }
-    QImage getPreview() const { return m_preview; }
-    QString getCapeId() const { return m_capeId; }
+    QPixmap getTexture() const { return m_texture; }
+    QString getCapeId() const { return m_cape_id; }
     Model getModel() const { return m_model; }
     QString getURL() const { return m_url; }
 
     bool rename(QString newName);
-    void setCapeId(QString capeID) { m_capeId = capeID; }
-    void setModel(Model model);
+    void setCapeId(QString capeID) { m_cape_id = capeID; }
+    void setModel(Model model) { m_model = model; }
     void setURL(QString url) { m_url = url; }
-    void refresh();
+    void refresh() { m_texture = QPixmap(m_path); }
 
     QJsonObject toJSON() const;
 
    private:
     QString m_path;
-    QImage m_texture;
-    QImage m_preview;
-    QString m_capeId;
+    QPixmap m_texture;
+    QString m_cape_id;
     Model m_model;
     QString m_url;
 };

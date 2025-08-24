@@ -21,8 +21,7 @@ QMessageBox* selectable(QWidget* parent,
                         const QString& text,
                         QMessageBox::Icon icon,
                         QMessageBox::StandardButtons buttons,
-                        QMessageBox::StandardButton defaultButton,
-                        QCheckBox* checkBox)
+                        QMessageBox::StandardButton defaultButton)
 {
     QMessageBox* messageBox = new QMessageBox(parent);
     messageBox->setWindowTitle(title);
@@ -32,8 +31,6 @@ QMessageBox* selectable(QWidget* parent,
     messageBox->setTextInteractionFlags(Qt::TextSelectableByMouse);
     messageBox->setIcon(icon);
     messageBox->setTextInteractionFlags(Qt::TextBrowserInteraction);
-    if (checkBox)
-        messageBox->setCheckBox(checkBox);
 
     return messageBox;
 }

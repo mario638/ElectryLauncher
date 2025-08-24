@@ -208,9 +208,13 @@ QVariant WorldList::data(const QModelIndex& index, int role) const
             }
 
         case Qt::UserRole:
-            if (column == SizeColumn)
-                return QVariant::fromValue<qlonglong>(world.bytes());
-            return data(index, Qt::DisplayRole);
+            switch (column) {
+                case SizeColumn:
+                    return QVariant::fromValue<qlonglong>(world.bytes());
+
+                default:
+                    return data(index, Qt::DisplayRole);
+            }
 
         case Qt::ToolTipRole: {
             if (column == InfoColumn) {

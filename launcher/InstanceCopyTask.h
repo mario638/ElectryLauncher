@@ -28,7 +28,7 @@ class InstanceCopyTask : public InstanceTask {
     InstancePtr m_origInstance;
     QFuture<bool> m_copyFuture;
     QFutureWatcher<bool> m_copyFutureWatcher;
-    IPathMatcher::Ptr m_matcher;
+    std::unique_ptr<IPathMatcher> m_matcher;
     bool m_keepPlaytime;
     bool m_useLinks = false;
     bool m_useHardLinks = false;

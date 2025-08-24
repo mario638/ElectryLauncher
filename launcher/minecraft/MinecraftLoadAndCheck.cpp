@@ -2,16 +2,15 @@
 #include "MinecraftInstance.h"
 #include "PackProfile.h"
 
-MinecraftLoadAndCheck::MinecraftLoadAndCheck(MinecraftInstance* inst, Net::Mode netmode) : m_inst(inst), m_netmode(netmode) {}
+MinecraftLoadAndCheck::MinecraftLoadAndCheck(MinecraftInstance* inst, Net::Mode netmode, QObject* parent)
+    : Task(parent), m_inst(inst), m_netmode(netmode)
+{}
 
 void MinecraftLoadAndCheck::executeTask()
 {
     // add offline metadata load task
     auto components = m_inst->getPackProfile();
-    if (auto result = components->reload(m_netmode); !result) {
-        emitFailed(result.error);
-        return;
-    }
+    components->reload(m_netmode);
     m_task = components->getCurrentTask();
 
     if (!m_task) {

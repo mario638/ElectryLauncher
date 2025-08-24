@@ -123,7 +123,6 @@
 #include "KonamiCode.h"
 
 #include "InstanceCopyTask.h"
-#include "InstanceDirUpdate.h"
 
 #include "Json.h"
 
@@ -155,7 +154,7 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
         // Qt doesn't like vertical moving toolbars, so we have to force them...
         // See https://github.com/PolyMC/PolyMC/issues/493
         connect(ui->instanceToolBar, &QToolBar::orientationChanged,
-                [this](Qt::Orientation) { ui->instanceToolBar->setOrientation(Qt::Vertical); });
+                [=](Qt::Orientation) { ui->instanceToolBar->setOrientation(Qt::Vertical); });
 
         // if you try to add a widget to a toolbar in a .ui file
         // qt designer will delete it when you save the file >:(
@@ -289,27 +288,10 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
 
         view->setSelectionMode(QAbstractItemView::SingleSelection);
         // FIXME: leaks ListViewDelegate
-        auto delegate = new ListViewDelegate(this);
-        view->setItemDelegate(delegate);
+        view->setItemDelegate(new ListViewDelegate(this));
         view->setFrameShape(QFrame::NoFrame);
         // do not show ugly blue border on the mac
         view->setAttribute(Qt::WA_MacShowFocusRect, false);
-        connect(delegate, &ListViewDelegate::textChanged, this, [this](QString before, QString after) {
-            if (auto newRoot = askToUpdateInstanceDirName(m_selectedInstance, before, after, this); !newRoot.isEmpty()) {
-                auto oldID = m_selectedInstance->id();
-                auto newID = QFileInfo(newRoot).fileName();
-                QString origGroup(APPLICATION->instances()->getInstanceGroup(oldID));
-                bool syncGroup = origGroup != GroupId() && oldID != newID;
-                if (syncGroup)
-                    APPLICATION->instances()->setInstanceGroup(oldID, GroupId());
-
-                refreshInstances();
-                setSelectedInstanceById(newID);
-
-                if (syncGroup)
-                    APPLICATION->instances()->setInstanceGroup(newID, origGroup);
-            }
-        });
 
         view->installEventFilter(this);
         view->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -1045,14 +1027,6 @@ void MainWindow::processURLs(QList<QUrl> urls)
             continue;
         }
 
-        if (APPLICATION->instances()->count() <= 0) {
-            CustomMessageBox::selectable(this, tr("No instance!"),
-                                         tr("No instance available to add the resource to.\nPlease create a new instance before "
-                                            "attempting to install this resource again."),
-                                         QMessageBox::Critical)
-                ->show();
-            continue;
-        }
         ImportResourceDialog dlg(localFileName, type, this);
 
         if (dlg.exec() != QDialog::Accepted)
@@ -1065,19 +1039,19 @@ void MainWindow::processURLs(QList<QUrl> urls)
 
         switch (type) {
             case PackedResourceType::ResourcePack:
-                minecraftInst->resourcePackList()->installResourceWithFlameMetadata(localFileName, version);
+                minecraftInst->resourcePackList()->installResource(localFileName);
                 break;
             case PackedResourceType::TexturePack:
-                minecraftInst->texturePackList()->installResourceWithFlameMetadata(localFileName, version);
+                minecraftInst->texturePackList()->installResource(localFileName);
                 break;
             case PackedResourceType::DataPack:
                 qWarning() << "Importing of Data Packs not supported at this time. Ignoring" << localFileName;
                 break;
             case PackedResourceType::Mod:
-                minecraftInst->loaderModList()->installResourceWithFlameMetadata(localFileName, version);
+                minecraftInst->loaderModList()->installMod(localFileName, version);
                 break;
             case PackedResourceType::ShaderPack:
-                minecraftInst->shaderPackList()->installResourceWithFlameMetadata(localFileName, version);
+                minecraftInst->shaderPackList()->installResource(localFileName);
                 break;
             case PackedResourceType::WorldSave:
                 minecraftInst->worldList()->installWorld(localFileInfo);
@@ -1395,8 +1369,20 @@ void MainWindow::on_actionDeleteInstance_triggered()
     if (response != QMessageBox::Yes)
         return;
 
-    if (!checkLinkedInstances(id, this, tr("Deleting")))
-        return;
+    auto linkedInstances = APPLICATION->instances()->getLinkedInstancesById(id);
+    if (!linkedInstances.empty()) {
+        response = CustomMessageBox::selectable(this, tr("There are linked instances"),
+                                                tr("The following instance(s) might reference files in this instance:\n\n"
+                                                   "%1\n\n"
+                                                   "Deleting it could break the other instance(s), \n\n"
+                                                   "Do you wish to proceed?",
+                                                   nullptr, linkedInstances.count())
+                                                    .arg(linkedInstances.join("\n")),
+                                                QMessageBox::Warning, QMessageBox::Yes | QMessageBox::No, QMessageBox::No)
+                       ->exec();
+        if (response != QMessageBox::Yes)
+            return;
+    }
 
     if (APPLICATION->instances()->trashInstance(id)) {
         ui->actionUndoTrashInstance->setEnabled(APPLICATION->instances()->trashedSomething());
@@ -1593,7 +1579,9 @@ void MainWindow::on_actionCreateInstanceShortcut_triggered()
         if (desktopFilePath.isEmpty())
             return;  // file dialog canceled by user
         appPath = "flatpak";
-        args.append({ "run", BuildConfig.LAUNCHER_APPID });
+        QString flatpakAppId = BuildConfig.LAUNCHER_DESKTOPFILENAME;
+        flatpakAppId.remove(".desktop");
+        args.append({ "run", flatpakAppId });
     }
 
 #elif defined(Q_OS_WIN)

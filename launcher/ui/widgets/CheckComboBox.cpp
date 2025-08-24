@@ -40,7 +40,7 @@ class CheckComboModel : public QIdentityProxyModel {
     {
         if (role == Qt::CheckStateRole) {
             auto txt = QIdentityProxyModel::data(index, Qt::DisplayRole).toString();
-            return m_checked.contains(txt) ? Qt::Checked : Qt::Unchecked;
+            return checked.contains(txt) ? Qt::Checked : Qt::Unchecked;
         }
         if (role == Qt::DisplayRole)
             return QIdentityProxyModel::data(index, Qt::DisplayRole);
@@ -50,10 +50,10 @@ class CheckComboModel : public QIdentityProxyModel {
     {
         if (role == Qt::CheckStateRole) {
             auto txt = QIdentityProxyModel::data(index, Qt::DisplayRole).toString();
-            if (m_checked.contains(txt)) {
-                m_checked.removeOne(txt);
+            if (checked.contains(txt)) {
+                checked.removeOne(txt);
             } else {
-                m_checked.push_back(txt);
+                checked.push_back(txt);
             }
             emit dataChanged(index, index);
             emit checkStateChanged();
@@ -61,13 +61,13 @@ class CheckComboModel : public QIdentityProxyModel {
         }
         return QIdentityProxyModel::setData(index, value, role);
     }
-    QStringList getChecked() { return m_checked; }
+    QStringList getChecked() { return checked; }
 
    signals:
     void checkStateChanged();
 
    private:
-    QStringList m_checked;
+    QStringList checked;
 };
 
 CheckComboBox::CheckComboBox(QWidget* parent) : QComboBox(parent), m_separator(", ")
@@ -92,7 +92,7 @@ void CheckComboBox::setSourceModel(QAbstractItemModel* new_model)
 
 void CheckComboBox::hidePopup()
 {
-    if (!m_containerMousePress)
+    if (!containerMousePress)
         QComboBox::hidePopup();
 }
 
@@ -138,7 +138,7 @@ bool CheckComboBox::eventFilter(QObject* receiver, QEvent* event)
         }
         case QEvent::MouseButtonPress: {
             auto ev = static_cast<QMouseEvent*>(event);
-            m_containerMousePress = ev && view()->indexAt(ev->pos()).isValid();
+            containerMousePress = ev && view()->indexAt(ev->pos()).isValid();
             break;
         }
         case QEvent::Wheel:

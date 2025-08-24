@@ -115,7 +115,7 @@ class copy : public QObject {
         m_followSymlinks = follow;
         return *this;
     }
-    copy& matcher(IPathMatcher::Ptr filter)
+    copy& matcher(const IPathMatcher* filter)
     {
         m_matcher = filter;
         return *this;
@@ -147,7 +147,7 @@ class copy : public QObject {
 
    private:
     bool m_followSymlinks = true;
-    IPathMatcher::Ptr m_matcher = nullptr;
+    const IPathMatcher* m_matcher = nullptr;
     bool m_whitelist = false;
     bool m_overwrite = false;
     QDir m_src;
@@ -209,7 +209,7 @@ class create_link : public QObject {
         m_useHardLinks = useHard;
         return *this;
     }
-    create_link& matcher(IPathMatcher::Ptr filter)
+    create_link& matcher(const IPathMatcher* filter)
     {
         m_matcher = filter;
         return *this;
@@ -260,7 +260,7 @@ class create_link : public QObject {
 
    private:
     bool m_useHardLinks = false;
-    IPathMatcher::Ptr m_matcher = nullptr;
+    const IPathMatcher* m_matcher = nullptr;
     bool m_whitelist = false;
     bool m_recursive = true;
 
@@ -488,7 +488,7 @@ class clone : public QObject {
         m_src.setPath(src);
         m_dst.setPath(dst);
     }
-    clone& matcher(IPathMatcher::Ptr filter)
+    clone& matcher(const IPathMatcher* filter)
     {
         m_matcher = filter;
         return *this;
@@ -514,7 +514,7 @@ class clone : public QObject {
     bool operator()(const QString& offset, bool dryRun = false);
 
    private:
-    IPathMatcher::Ptr m_matcher = nullptr;
+    const IPathMatcher* m_matcher = nullptr;
     bool m_whitelist = false;
     QDir m_src;
     QDir m_dst;

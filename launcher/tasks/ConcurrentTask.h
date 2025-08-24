@@ -43,16 +43,12 @@
 
 #include "tasks/Task.h"
 
-/*!
- * Runs a list of tasks concurrently (according to `max_concurrent` parameter).
- * Behaviour is the same as regular Task (e.g. starts using start())
- */
 class ConcurrentTask : public Task {
     Q_OBJECT
    public:
     using Ptr = shared_qobject_ptr<ConcurrentTask>;
 
-    explicit ConcurrentTask(QString task_name = "", int max_concurrent = 6);
+    explicit ConcurrentTask(QObject* parent = nullptr, QString task_name = "", int max_concurrent = 6);
     ~ConcurrentTask() override;
 
     // safe to call before starting the task
@@ -63,7 +59,6 @@ class ConcurrentTask : public Task {
     inline auto isMultiStep() const -> bool override { return totalSize() > 1; }
     auto getStepProgress() const -> TaskStepProgressList override;
 
-    //! Adds a task to execute in this ConcurrentTask
     void addTask(Task::Ptr task);
 
    public slots:

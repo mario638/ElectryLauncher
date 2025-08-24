@@ -76,7 +76,10 @@ static QString enumToString(int hash_algorithm)
     }
 }
 
-void FlameMod::loadIndexedPackVersions(ModPlatform::IndexedPack& pack, QJsonArray& arr)
+void FlameMod::loadIndexedPackVersions(ModPlatform::IndexedPack& pack,
+                                       QJsonArray& arr,
+                                       [[maybe_unused]] const shared_qobject_ptr<QNetworkAccessManager>& network,
+                                       const BaseInstance* inst)
 {
     QVector<ModPlatform::IndexedVersion> unsortedVersions;
     for (auto versionIter : arr) {
@@ -102,6 +105,9 @@ void FlameMod::loadIndexedPackVersions(ModPlatform::IndexedPack& pack, QJsonArra
 auto FlameMod::loadIndexedPackVersion(QJsonObject& obj, bool load_changelog) -> ModPlatform::IndexedVersion
 {
     auto versionArray = Json::requireArray(obj, "gameVersions");
+    if (versionArray.isEmpty()) {
+        return {};
+    }
 
     ModPlatform::IndexedVersion file;
     for (auto mcVer : versionArray) {

@@ -14,7 +14,7 @@
 
 #include "JavaCommon.h"
 
-#include "ui/widgets/JavaWizardWidget.h"
+#include "ui/widgets/JavaSettingsWidget.h"
 #include "ui/widgets/VersionSelectWidget.h"
 
 JavaWizardPage::JavaWizardPage(QWidget* parent) : BaseWizardPage(parent)
@@ -27,7 +27,7 @@ void JavaWizardPage::setupUi()
     setObjectName(QStringLiteral("javaPage"));
     QVBoxLayout* layout = new QVBoxLayout(this);
 
-    m_java_widget = new JavaWizardWidget(this);
+    m_java_widget = new JavaSettingsWidget(this);
     layout->addWidget(m_java_widget);
     setLayout(layout);
 
@@ -58,13 +58,13 @@ bool JavaWizardPage::validatePage()
     settings->set("UserAskedAboutAutomaticJavaDownload", true);
     switch (result) {
         default:
-        case JavaWizardWidget::ValidationStatus::Bad: {
+        case JavaSettingsWidget::ValidationStatus::Bad: {
             return false;
         }
-        case JavaWizardWidget::ValidationStatus::AllOK: {
+        case JavaSettingsWidget::ValidationStatus::AllOK: {
             settings->set("JavaPath", m_java_widget->javaPath());
         } /* fallthrough */
-        case JavaWizardWidget::ValidationStatus::JavaBad: {
+        case JavaSettingsWidget::ValidationStatus::JavaBad: {
             // Memory
             auto s = APPLICATION->settings();
             s->set("MinMemAlloc", m_java_widget->minHeapSize());

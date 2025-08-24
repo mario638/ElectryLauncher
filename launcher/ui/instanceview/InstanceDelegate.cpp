@@ -397,7 +397,6 @@ void ListViewDelegate::setModelData(QWidget* editor, QAbstractItemModel* model, 
     // Prevent instance names longer than 128 chars
     text.truncate(128);
     if (text.size() != 0) {
-        emit textChanged(model->data(index).toString(), text);
         model->setData(index, text);
     }
 }

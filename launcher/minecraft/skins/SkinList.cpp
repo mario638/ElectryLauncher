@@ -31,7 +31,7 @@ SkinList::SkinList(QObject* parent, QString path, MinecraftAccountPtr acct) : QA
     m_dir.setFilter(QDir::Readable | QDir::NoDotAndDotDot | QDir::Files | QDir::Dirs);
     m_dir.setSorting(QDir::Name | QDir::IgnoreCase | QDir::LocaleAware);
     m_watcher.reset(new QFileSystemWatcher(this));
-    m_isWatching = false;
+    is_watching = false;
     connect(m_watcher.get(), &QFileSystemWatcher::directoryChanged, this, &SkinList::directoryChanged);
     connect(m_watcher.get(), &QFileSystemWatcher::fileChanged, this, &SkinList::fileChanged);
     directoryChanged(path);
@@ -39,12 +39,12 @@ SkinList::SkinList(QObject* parent, QString path, MinecraftAccountPtr acct) : QA
 
 void SkinList::startWatching()
 {
-    if (m_isWatching) {
+    if (is_watching) {
         return;
     }
     update();
-    m_isWatching = m_watcher->addPath(m_dir.absolutePath());
-    if (m_isWatching) {
+    is_watching = m_watcher->addPath(m_dir.absolutePath());
+    if (is_watching) {
         qDebug() << "Started watching " << m_dir.absolutePath();
     } else {
         qDebug() << "Failed to start watching " << m_dir.absolutePath();
@@ -54,11 +54,11 @@ void SkinList::startWatching()
 void SkinList::stopWatching()
 {
     save();
-    if (!m_isWatching) {
+    if (!is_watching) {
         return;
     }
-    m_isWatching = !m_watcher->removePath(m_dir.absolutePath());
-    if (!m_isWatching) {
+    is_watching = !m_watcher->removePath(m_dir.absolutePath());
+    if (!is_watching) {
         qDebug() << "Stopped watching " << m_dir.absolutePath();
     } else {
         qDebug() << "Failed to stop watching " << m_dir.absolutePath();
@@ -142,7 +142,7 @@ bool SkinList::update()
     std::sort(newSkins.begin(), newSkins.end(),
               [](const SkinModel& a, const SkinModel& b) { return a.getPath().localeAwareCompare(b.getPath()) < 0; });
     beginResetModel();
-    m_skinList.swap(newSkins);
+    m_skin_list.swap(newSkins);
     endResetModel();
     if (needsSave)
         save();
@@ -158,7 +158,7 @@ void SkinList::directoryChanged(const QString& path)
     if (m_dir.absolutePath() != new_dir.absolutePath()) {
         m_dir.setPath(path);
         m_dir.refresh();
-        if (m_isWatching)
+        if (is_watching)
             stopWatching();
         startWatching();
     }
@@ -172,9 +172,9 @@ void SkinList::fileChanged(const QString& path)
     if (!checkfile.exists())
         return;
 
-    for (int i = 0; i < m_skinList.count(); i++) {
-        if (m_skinList[i].getPath() == checkfile.absoluteFilePath()) {
-            m_skinList[i].refresh();
+    for (int i = 0; i < m_skin_list.count(); i++) {
+        if (m_skin_list[i].getPath() == checkfile.absoluteFilePath()) {
+            m_skin_list[i].refresh();
             dataChanged(index(i), index(i));
             break;
         }
@@ -235,17 +235,12 @@ QVariant SkinList::data(const QModelIndex& index, int role) const
 
     int row = index.row();
 
-    if (row < 0 || row >= m_skinList.size())
+    if (row < 0 || row >= m_skin_list.size())
         return QVariant();
-    auto skin = m_skinList[row];
+    auto skin = m_skin_list[row];
     switch (role) {
-        case Qt::DecorationRole: {
-            auto preview = skin.getPreview();
-            if (preview.isNull()) {
-                preview = skin.getTexture();
-            }
-            return preview;
-        }
+        case Qt::DecorationRole:
+            return skin.getTexture();
         case Qt::DisplayRole:
             return skin.name();
         case Qt::UserRole:
@@ -259,7 +254,7 @@ QVariant SkinList::data(const QModelIndex& index, int role) const
 
 int SkinList::rowCount(const QModelIndex& parent) const
 {
-    return parent.isValid() ? 0 : m_skinList.size();
+    return parent.isValid() ? 0 : m_skin_list.size();
 }
 
 void SkinList::installSkins(const QStringList& iconFiles)
@@ -289,8 +284,8 @@ QString SkinList::installSkin(const QString& file, const QString& name)
 
 int SkinList::getSkinIndex(const QString& key) const
 {
-    for (int i = 0; i < m_skinList.count(); i++) {
-        if (m_skinList[i].name() == key) {
+    for (int i = 0; i < m_skin_list.count(); i++) {
+        if (m_skin_list[i].name() == key) {
             return i;
         }
     }
@@ -302,7 +297,7 @@ const SkinModel* SkinList::skin(const QString& key) const
     int idx = getSkinIndex(key);
     if (idx == -1)
         return nullptr;
-    return &m_skinList[idx];
+    return &m_skin_list[idx];
 }
 
 SkinModel* SkinList::skin(const QString& key)
@@ -310,22 +305,22 @@ SkinModel* SkinList::skin(const QString& key)
     int idx = getSkinIndex(key);
     if (idx == -1)
         return nullptr;
-    return &m_skinList[idx];
+    return &m_skin_list[idx];
 }
 
-bool SkinList::deleteSkin(const QString& key, bool trash)
+bool SkinList::deleteSkin(const QString& key, const bool trash)
 {
     int idx = getSkinIndex(key);
     if (idx != -1) {
-        auto s = m_skinList[idx];
+        auto s = m_skin_list[idx];
         if (trash) {
             if (FS::trash(s.getPath(), nullptr)) {
-                m_skinList.remove(idx);
+                m_skin_list.remove(idx);
                 save();
                 return true;
             }
         } else if (QFile::remove(s.getPath())) {
-            m_skinList.remove(idx);
+            m_skin_list.remove(idx);
             save();
             return true;
         }
@@ -337,7 +332,7 @@ void SkinList::save()
 {
     QJsonObject doc;
     QJsonArray arr;
-    for (auto s : m_skinList) {
+    for (auto s : m_skin_list) {
         arr << s.toJSON();
     }
     doc["skins"] = arr;
@@ -351,8 +346,8 @@ void SkinList::save()
 int SkinList::getSelectedAccountSkin()
 {
     const auto& skin = m_acct->accountData()->minecraftProfile.skin;
-    for (int i = 0; i < m_skinList.count(); i++) {
-        if (m_skinList[i].getURL() == skin.url) {
+    for (int i = 0; i < m_skin_list.count(); i++) {
+        if (m_skin_list[i].getURL() == skin.url) {
             return i;
         }
     }
@@ -366,9 +361,9 @@ bool SkinList::setData(const QModelIndex& idx, const QVariant& value, int role)
     }
 
     int row = idx.row();
-    if (row < 0 || row >= m_skinList.size())
+    if (row < 0 || row >= m_skin_list.size())
         return false;
-    auto& skin = m_skinList[row];
+    auto& skin = m_skin_list[row];
     auto newName = value.toString();
     if (skin.name() != newName) {
         skin.rename(newName);
@@ -380,18 +375,18 @@ bool SkinList::setData(const QModelIndex& idx, const QVariant& value, int role)
 void SkinList::updateSkin(SkinModel* s)
 {
     auto done = false;
-    for (auto i = 0; i < m_skinList.size(); i++) {
-        if (m_skinList[i].getPath() == s->getPath()) {
-            m_skinList[i].setCapeId(s->getCapeId());
-            m_skinList[i].setModel(s->getModel());
-            m_skinList[i].setURL(s->getURL());
+    for (auto i = 0; i < m_skin_list.size(); i++) {
+        if (m_skin_list[i].getPath() == s->getPath()) {
+            m_skin_list[i].setCapeId(s->getCapeId());
+            m_skin_list[i].setModel(s->getModel());
+            m_skin_list[i].setURL(s->getURL());
             done = true;
             break;
         }
     }
     if (!done) {
-        beginInsertRows(QModelIndex(), m_skinList.count(), m_skinList.count() + 1);
-        m_skinList.append(*s);
+        beginInsertRows(QModelIndex(), m_skin_list.count(), m_skin_list.count() + 1);
+        m_skin_list.append(*s);
         endInsertRows();
     }
     save();

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QtCore/QEventLoop>
 #include <QtWidgets/QDialog>
 
 #include "minecraft/auth/MinecraftAccount.h"

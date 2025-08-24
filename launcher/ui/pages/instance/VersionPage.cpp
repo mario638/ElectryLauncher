@@ -243,7 +243,7 @@ void VersionPage::updateButtons(int row)
     ui->actionRemove->setEnabled(patch && patch->isRemovable());
     ui->actionMove_down->setEnabled(patch && patch->isMoveable());
     ui->actionMove_up->setEnabled(patch && patch->isMoveable());
-    ui->actionChange_version->setEnabled(patch && patch->isVersionChangeable(false));
+    ui->actionChange_version->setEnabled(patch && patch->isVersionChangeable());
     ui->actionEdit->setEnabled(patch && patch->isCustom());
     ui->actionCustomize->setEnabled(patch && patch->isCustomizable());
     ui->actionRevert->setEnabled(patch && patch->isRevertible());
@@ -252,11 +252,8 @@ void VersionPage::updateButtons(int row)
 bool VersionPage::reloadPackProfile()
 {
     try {
-        auto result = m_profile->reload(Net::Mode::Online);
-        if (!result) {
-            QMessageBox::critical(this, tr("Error"), result.error);
-        }
-        return result;
+        m_profile->reload(Net::Mode::Online);
+        return true;
     } catch (const Exception& e) {
         QMessageBox::critical(this, tr("Error"), e.cause());
         return false;
@@ -438,7 +435,7 @@ void VersionPage::on_actionDownload_All_triggered()
     if (updateTasks.isEmpty()) {
         return;
     }
-    auto task = makeShared<SequentialTask>();
+    auto task = makeShared<SequentialTask>(this);
     for (auto t : updateTasks) {
         task->addTask(t);
     }

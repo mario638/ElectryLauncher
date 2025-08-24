@@ -21,7 +21,6 @@ CMakeCache.txt
 /.vs
 cmake-build-*/
 Debug
-compile_commands.json
 
 # Build dirs
 build
@@ -48,12 +47,8 @@ run/
 
 # Nix/NixOS
 .direnv/
-## Used when manually invoking stdenv phases
-outputs/
-## Regular artifacts
+.pre-commit-config.yaml
 result
-result-*
-repl-result-*
 
 # Flatpak
 .flatpak-builder

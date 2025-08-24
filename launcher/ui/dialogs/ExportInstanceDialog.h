@@ -60,13 +60,15 @@ class ExportInstanceDialog : public QDialog {
 
    private:
     void doExport();
+    void loadPackIgnore();
+    void savePackIgnore();
     QString ignoreFileName();
 
    private:
-    Ui::ExportInstanceDialog* m_ui;
+    Ui::ExportInstanceDialog* ui;
     InstancePtr m_instance;
-    FileIgnoreProxy* m_proxyModel;
-    FastFileIconProvider m_icons;
+    FileIgnoreProxy* proxyModel;
+    FastFileIconProvider icons;
 
    private slots:
     void rowsInserted(QModelIndex parent, int top, int bottom);

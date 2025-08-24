@@ -33,9 +33,6 @@ class ListViewDelegate : public QStyledItemDelegate {
     void setEditorData(QWidget* editor, const QModelIndex& index) const override;
     void setModelData(QWidget* editor, QAbstractItemModel* model, const QModelIndex& index) const override;
 
-   signals:
-    void textChanged(QString before, QString after) const;
-
    private slots:
     void editingDone();
 };

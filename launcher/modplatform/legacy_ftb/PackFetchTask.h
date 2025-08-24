@@ -40,7 +40,7 @@ class PackFetchTask : public QObject {
     void failed(QString reason);
     void aborted();
 
-    void privateFileDownloadFinished(const Modpack& modpack);
+    void privateFileDownloadFinished(Modpack modpack);
     void privateFileDownloadFailed(QString reason, QString packCode);
 };
 

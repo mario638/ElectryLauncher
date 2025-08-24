@@ -40,6 +40,7 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
+#include <QEventLoop>
 #include <QRegularExpression>
 #include <QStandardPaths>
 #include "MessageLevel.h"
@@ -253,60 +254,20 @@ void LaunchTask::emitFailed(QString reason)
     Task::emitFailed(reason);
 }
 
-QString expandVariables(const QString& input, QProcessEnvironment dict)
+void LaunchTask::substituteVariables(QStringList& args) const
 {
-    QString result = input;
+    auto env = m_instance->createEnvironment();
 
-    enum { base, maybeBrace, variable, brace } state = base;
-    int startIdx = -1;
-    for (int i = 0; i < result.length();) {
-        QChar c = result.at(i++);
-        switch (state) {
-            case base:
-                if (c == '$')
-                    state = maybeBrace;
-                break;
-            case maybeBrace:
-                if (c == '{') {
-                    state = brace;
-                    startIdx = i;
-                } else if (c.isLetterOrNumber() || c == '_') {
-                    state = variable;
-                    startIdx = i - 1;
-                } else {
-                    state = base;
-                }
-                break;
-            case brace:
-                if (c == '}') {
-                    const auto res = dict.value(result.mid(startIdx, i - 1 - startIdx), "");
-                    if (!res.isEmpty()) {
-                        result.replace(startIdx - 2, i - startIdx + 2, res);
-                        i = startIdx - 2 + res.length();
-                    }
-                    state = base;
-                }
-                break;
-            case variable:
-                if (!c.isLetterOrNumber() && c != '_') {
-                    const auto res = dict.value(result.mid(startIdx, i - startIdx - 1), "");
-                    if (!res.isEmpty()) {
-                        result.replace(startIdx - 1, i - startIdx, res);
-                        i = startIdx - 1 + res.length();
-                    }
-                    state = base;
-                }
-                break;
-        }
+    for (auto key : env.keys()) {
+        args.replaceInStrings("$" + key, env.value(key));
     }
-    if (state == variable) {
-        if (const auto res = dict.value(result.mid(startIdx), ""); !res.isEmpty())
-            result.replace(startIdx - 1, result.length() - startIdx + 1, res);
-    }
-    return result;
 }
 
-QString LaunchTask::substituteVariables(QString& cmd, bool isLaunch) const
+void LaunchTask::substituteVariables(QString& cmd) const
 {
-    return expandVariables(cmd, isLaunch ? m_instance->createLaunchEnvironment() : m_instance->createEnvironment());
+    auto env = m_instance->createEnvironment();
+
+    for (auto key : env.keys()) {
+        cmd.replace("$" + key, env.value(key));
+    }
 }

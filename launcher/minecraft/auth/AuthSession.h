@@ -1,9 +1,12 @@
 #pragma once
 
+#include <QMultiMap>
 #include <QString>
 #include <memory>
+#include "QObjectPtr.h"
 
 class MinecraftAccount;
+class QNetworkAccessManager;
 
 struct AuthSession {
     bool MakeOffline(QString offline_playername);

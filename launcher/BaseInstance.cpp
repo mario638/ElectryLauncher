@@ -386,12 +386,6 @@ void BaseInstance::setName(QString val)
     emit propertiesChanged(this);
 }
 
-bool BaseInstance::syncInstanceDirName(const QString& newRoot) const
-{
-    auto oldRoot = instanceRoot();
-    return oldRoot == newRoot || QFile::rename(oldRoot, newRoot);
-}
-
 QString BaseInstance::name() const
 {
     return m_settings->get("name").toString();
@@ -416,9 +410,4 @@ shared_qobject_ptr<LaunchTask> BaseInstance::getLaunchTask()
 void BaseInstance::updateRuntimeContext()
 {
     // NOOP
-}
-
-bool BaseInstance::isLegacy()
-{
-    return traits().contains("legacyLaunch") || traits().contains("alphaLaunch");
 }

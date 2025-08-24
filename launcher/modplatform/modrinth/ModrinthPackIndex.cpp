@@ -112,7 +112,7 @@ void Modrinth::loadExtraPackData(ModPlatform::IndexedPack& pack, QJsonObject& ob
     pack.extraDataLoaded = true;
 }
 
-void Modrinth::loadIndexedPackVersions(ModPlatform::IndexedPack& pack, QJsonArray& arr)
+void Modrinth::loadIndexedPackVersions(ModPlatform::IndexedPack& pack, QJsonArray& arr, const BaseInstance* inst)
 {
     QVector<ModPlatform::IndexedVersion> unsortedVersions;
     for (auto versionIter : arr) {
@@ -131,7 +131,9 @@ void Modrinth::loadIndexedPackVersions(ModPlatform::IndexedPack& pack, QJsonArra
     pack.versionsLoaded = true;
 }
 
-ModPlatform::IndexedVersion Modrinth::loadIndexedPackVersion(QJsonObject& obj, QString preferred_hash_type, QString preferred_file_name)
+auto Modrinth::loadIndexedPackVersion(QJsonObject& obj,
+                                      QString preferred_hash_type,
+                                      QString preferred_file_name) -> ModPlatform::IndexedVersion
 {
     ModPlatform::IndexedVersion file;
 
@@ -143,7 +145,7 @@ ModPlatform::IndexedVersion Modrinth::loadIndexedPackVersion(QJsonObject& obj, Q
         return {};
     }
     for (auto mcVer : versionArray) {
-        file.mcVersion.append(ModrinthAPI::mapMCVersionFromModrinth(mcVer.toString()));
+        file.mcVersion.append(mcVer.toString());
     }
     auto loaders = Json::requireArray(obj, "loaders");
     for (auto loader : loaders) {
@@ -245,9 +247,9 @@ ModPlatform::IndexedVersion Modrinth::loadIndexedPackVersion(QJsonObject& obj, Q
     return {};
 }
 
-ModPlatform::IndexedVersion Modrinth::loadDependencyVersions([[maybe_unused]] const ModPlatform::Dependency& m,
-                                                             QJsonArray& arr,
-                                                             const BaseInstance* inst)
+auto Modrinth::loadDependencyVersions([[maybe_unused]] const ModPlatform::Dependency& m,
+                                      QJsonArray& arr,
+                                      const BaseInstance* inst) -> ModPlatform::IndexedVersion
 {
     auto profile = (dynamic_cast<const MinecraftInstance*>(inst))->getPackProfile();
     QString mcVersion = profile->getComponentVersion("net.minecraft");

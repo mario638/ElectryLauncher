@@ -23,6 +23,5 @@ QMessageBox* selectable(QWidget* parent,
                         const QString& text,
                         QMessageBox::Icon icon = QMessageBox::NoIcon,
                         QMessageBox::StandardButtons buttons = QMessageBox::Ok,
-                        QMessageBox::StandardButton defaultButton = QMessageBox::NoButton,
-                        QCheckBox* checkBox = nullptr);
+                        QMessageBox::StandardButton defaultButton = QMessageBox::NoButton);
 }
