@@ -75,6 +75,16 @@ if(MSVC)
 else()
     set(CMAKE_CXX_FLAGS "-Wall -pedantic -fstack-protector-strong --param=ssp-buffer-size=4 ${CMAKE_CXX_FLAGS}")
 
+    # CMakeLists.txt
+
+# Force MSVC compiler and skip pthreads, fseeko, off64_t checks on Windows
+if(MSVC)
+    message(STATUS "MSVC detected: Skipping pthreads and unix-specific checks.")
+else()
+    find_package(Threads REQUIRED)
+    check_function_exists(fseeko HAVE_FSEEKO)
+    check_type_size("off64_t" OFF64_T)
+endif()
     # ATL's pack list needs more than the default 1 Mib stack on windows
     if(WIN32)
         set(CMAKE_EXE_LINKER_FLAGS "-Wl,--stack,8388608 ${CMAKE_EXE_LINKER_FLAGS}")
