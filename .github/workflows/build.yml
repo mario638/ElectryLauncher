@@ -137,6 +137,7 @@ jobs:
           echo "CCACHE_VAR=ccache" >> $GITHUB_ENV
 
 
+
       - name: Configure ccache (Windows MSVC)
         if: ${{ runner.os == 'Windows' && matrix.msystem == '' && inputs.build_type == 'Debug' }}
         run: |
@@ -196,6 +197,12 @@ jobs:
           tools: ${{ matrix.qt_tools }}
           cache: ${{ inputs.is_qt_cached }}
 
+      - name: Install MSVC (Windows MSVC)
+        if: runner.os == 'Windows' # We want this for MinGW builds as well, as we need SignTool
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          vsversion: 2022
+          arch: ${{ matrix.vcvars_arch }}
 
       - name: Prepare AppImage (Linux)
         if: runner.os == 'Linux' && matrix.qt_ver != 5
@@ -264,7 +271,6 @@ jobs:
         run: |
           cmake --build ${{ env.BUILD_DIR }}
 
-
       - name: Build (Windows MSVC)
         if: runner.os == 'Windows' && matrix.msystem == ''
         run: |
@@ -278,7 +284,6 @@ jobs:
         if: runner.os != 'Windows'
         run: |
           ctest -E "^example64|example$" --test-dir build --output-on-failure
-
 
       - name: Test (Windows MSVC)
         if: runner.os == 'Windows' && matrix.msystem == '' && matrix.architecture != 'arm64'
@@ -309,7 +314,7 @@ jobs:
           cmake --install ${{ env.BUILD_DIR }}
 
           cd ${{ env.INSTALL_DIR }}
-          chmod +x "ElectryLauncher.app/Contents/MacOS/electrylauncher"
+          chmod +x "ElectryLauncher.app/Contents/MacOS/Electrylauncher"
 
           if [ -n '${{ secrets.APPLE_CODESIGN_ID }}' ]; then
             APPLE_CODESIGN_ID='${{ secrets.APPLE_CODESIGN_ID }}'
@@ -319,7 +324,7 @@ jobs:
             ENTITLEMENTS_FILE='../program_info/AdhocSignedApp.entitlements'
           fi
 
-          sudo codesign --sign "$APPLE_CODESIGN_ID" --deep --force --entitlements "$ENTITLEMENTS_FILE" --options runtime "ElectryLauncher.app/Contents/MacOS/electrylauncher"
+          sudo codesign --sign "$APPLE_CODESIGN_ID" --deep --force --entitlements "$ENTITLEMENTS_FILE" --options runtime "ElectryLauncher.app/Contents/MacOS/Electrylauncher"
           mv "ElectryLauncher.app" "Electry Launcher.app"
 
       - name: Notarize (macOS)
@@ -380,7 +385,7 @@ jobs:
           if (Get-Content ./codesign.pfx){
             cd ${{ env.INSTALL_DIR }}
             # We ship the exact same executable for portable and non-portable editions, so signing just once is fine
-            SignTool sign /fd sha256 /td sha256 /f ../codesign.pfx /p '${{ secrets.WINDOWS_CODESIGN_PASSWORD }}' /tr http://timestamp.digicert.com electrylauncher.exe electrylauncher_updater.exe electrylauncher_filelink.exe
+            SignTool sign /fd sha256 /td sha256 /f ../codesign.pfx /p '${{ secrets.WINDOWS_CODESIGN_PASSWORD }}' /tr http://timestamp.digicert.com Electrylauncher.exe Electrylauncher_updater.exe Electrylauncher_filelink.exe 
           } else {
             ":warning: Skipped code signing for Windows, as certificate was not present." >> $env:GITHUB_STEP_SUMMARY
           }
@@ -399,12 +404,12 @@ jobs:
           if ('${{ matrix.nscurl_tag }}') {
             New-Item -Name NSISPlugins -ItemType Directory
             Invoke-Webrequest https://github.com/negrutiu/nsis-nscurl/releases/download/${{ matrix.nscurl_tag }}/NScurl.zip -OutFile NSISPlugins\NScurl.zip
-            $nscurl_hash = Get-FileHash NSISPlugins\NScurl.zip -Algorithm Sha256 | Select-Object -ExpandProperty Hash
+            $nscurl_hash = Get-FileHash NSISPlugins\Nscurl.zip -Algorithm Sha256 | Select-Object -ExpandProperty Hash
             if ( $nscurl_hash -ne "${{ matrix.nscurl_sha256 }}") {
               echo "::error:: NSCurl.zip sha256 mismatch"
               exit 1
             }
-            Expand-Archive -Path NSISPlugins\NScurl.zip -DestinationPath NSISPlugins\NScurl
+            Expand-Archive -Path NSISPlugins\Nscurl.zip -DestinationPath NSISPlugins\Nscurl
           }
           cd ${{ env.INSTALL_DIR }}
           makensis -NOCD "${{ github.workspace }}/${{ env.BUILD_DIR }}/program_info/win_install.nsi"
@@ -426,7 +431,7 @@ jobs:
         run: |
           cmake --install ${{ env.BUILD_DIR }} --prefix ${{ env.INSTALL_APPIMAGE_DIR }}/usr
 
-          mv ${{ env.INSTALL_APPIMAGE_DIR }}/usr/share/metainfo/org.electrylauncher.ElectryLauncher.metainfo.xml ${{ env.INSTALL_APPIMAGE_DIR }}/usr/share/metainfo/org.electrylauncher.ElectryLauncher.appdata.xml
+          mv ${{ env.INSTALL_APPIMAGE_DIR }}/usr/share/metainfo/org.Electrylauncher.ElectryLauncher.metainfo.xml ${{ env.INSTALL_APPIMAGE_DIR }}/usr/share/metainfo/org.Electrylauncher.ElectryLauncher.appdata.xml
           export "NO_APPSTREAM=1" # we have to skip appstream checking because appstream on ubuntu 20.04 is outdated
 
           export OUTPUT="ElectryLauncher-Linux-x86_64.AppImage"
@@ -448,7 +453,7 @@ jobs:
           chmod +x AppImageUpdate-x86_64.AppImage
           cp AppImageUpdate-x86_64.AppImage ${{ env.INSTALL_APPIMAGE_DIR }}/usr/bin
 
-          export UPDATE_INFORMATION="gh-releases-zsync|${{ github.repository_owner }}|${{ github.event.repository.name }}|latest|ElectryLauncher-Linux-x86_64.AppImage.zsync"
+          export UPDATE_INFORMATION="gh-releases-zsync|${{ github.repository_owner }}|${{ github.event.repository.name }}|latest|ElectryLauncher-Linux-x86_64.AppImage.zsync" 
 
           if [ '${{ secrets.GPG_PRIVATE_KEY_ID }}' != '' ]; then
             export SIGN=1
@@ -460,7 +465,7 @@ jobs:
             echo ":warning: Skipped code signing for Linux AppImage, as gpg key was not present." >> $GITHUB_STEP_SUMMARY
           fi
 
-          ./linuxdeploy-x86_64.AppImage --appdir ${{ env.INSTALL_APPIMAGE_DIR }} --output appimage --plugin qt -i ${{ env.INSTALL_APPIMAGE_DIR }}/usr/share/icons/hicolor/scalable/apps/org.electrylauncher.ElectryLauncher.svg
+          ./linuxdeploy-x86_64.AppImage --appdir ${{ env.INSTALL_APPIMAGE_DIR }} --output appimage --plugin qt -i ${{ env.INSTALL_APPIMAGE_DIR }}/usr/share/icons/hicolor/scalable/apps/org.Electrylauncher.ElectryLauncher.svg
 
           mv "ElectryLauncher-Linux-x86_64.AppImage" "ElectryLauncher-Linux-${{ env.VERSION }}-${{ inputs.build_type }}-x86_64.AppImage"
 
@@ -482,6 +487,60 @@ jobs:
           for l in $(find ${{ env.INSTALL_PORTABLE_DIR }} -type f); do l=${l#$(pwd)/}; l=${l#${{ env.INSTALL_PORTABLE_DIR }}/}; l=${l#./}; echo $l; done > ${{ env.INSTALL_PORTABLE_DIR }}/manifest.txt
           cd ${{ env.INSTALL_PORTABLE_DIR }}
           tar -czf ../ElectryLauncher-portable.tar.gz *
+
+      ##
+      # UPLOAD BUILDS
+      ##
+
+      - name: Upload binary tarball (macOS)
+        if: runner.os == 'macOS'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ElectryLauncher-${{ matrix.name }}-${{ env.VERSION }}-${{ inputs.build_type }}
+          path: ElectryLauncher.zip
+
+      - name: Upload binary zip (Windows)
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ElectryLauncher-${{ matrix.name }}-${{ env.VERSION }}-${{ inputs.build_type }}
+          path: ${{ env.INSTALL_DIR }}/**
+
+      - name: Upload installer (Windows)
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ElectryLauncher-${{ matrix.name }}-Setup-${{ env.VERSION }}-${{ inputs.build_type }}
+          path: ElectryLauncher-Setup.exe
+
+      - name: Upload binary tarball (Linux, portable, Qt 5)
+        if: runner.os == 'Linux' && matrix.qt_ver != 6
+        uses: actions/upload-artifact@v4
+        with:
+          name: ElectryLauncher-${{ runner.os }}-Qt5-Portable-${{ env.VERSION }}-${{ inputs.build_type }}
+          path: ElectryLauncher-portable.tar.gz
+
+      - name: Upload binary tarball (Linux, portable, Qt 6)
+        if: runner.os == 'Linux' && matrix.qt_ver != 5
+        uses: actions/upload-artifact@v4
+        with:
+          name: ElectryLauncher-${{ runner.os }}-Qt6-Portable-${{ env.VERSION }}-${{ inputs.build_type }}
+          path: ElectryLauncher-portable.tar.gz
+
+      - name: Upload AppImage (Linux)
+        if: runner.os == 'Linux' && matrix.qt_ver != 5
+        uses: actions/upload-artifact@v4
+        with:
+          name: ElectryLauncher-${{ runner.os }}-${{ env.VERSION }}-${{ inputs.build_type }}-x86_64.AppImage
+          path: ElectryLauncher-${{ runner.os }}-${{ env.VERSION }}-${{ inputs.build_type }}-x86_64.AppImage
+
+      - name: Upload AppImage Zsync (Linux)
+        if: runner.os == 'Linux' && matrix.qt_ver != 5
+        uses: actions/upload-artifact@v4
+        with:
+          name: ElectryLauncher-${{ runner.os }}-${{ env.VERSION }}-${{ inputs.build_type }}-x86_64.AppImage.zsync
+          path: ElectryLauncher-Linux-x86_64.AppImage.zsync
+
 
       ##
       # UPLOAD BUILDS
@@ -543,4 +602,8 @@ jobs:
           name: ElectryLauncher-${{ runner.os }}-${{ env.VERSION }}-${{ inputs.build_type }}-x86_64.AppImage.zsync
           path: ElectryLauncher-Linux-x86_64.AppImage.zsync
 
-
+      - name: ccache stats (Windows MinGW-w64)
+        if: runner.os == 'Windows' && matrix.msystem != ''
+        shell: msys2 {0}
+        run: |
+          ccache -s
