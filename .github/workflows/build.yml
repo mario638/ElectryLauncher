@@ -363,7 +363,10 @@ jobs:
 
       - name: Package (Windows MSVC)
         if: runner.os == 'Windows' && matrix.msystem == ''
+        shell: pwsh
         run: |
+          # Remove MinGW from PATH to avoid CMake using mingw objdump
+          $env:PATH = ($env:PATH -replace 'C:/mingw64/bin;', '')
           cmake --install ${{ env.BUILD_DIR }} --config ${{ inputs.build_type }}
 
           cd ${{ github.workspace }}
