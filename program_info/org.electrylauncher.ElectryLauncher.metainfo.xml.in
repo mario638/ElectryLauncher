@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop">
-  <id>@Launcher_AppID@</id>
-  <launchable type="desktop-id">@Launcher_AppID@.desktop</launchable>
+  <id>org.electrylauncher.ElectryLauncher</id>
+  <launchable type="desktop-id">org.electrylauncher.ElectryLauncher.desktop</launchable>
   <name>Electry Launcher</name>
   <developer_name>Electry Launcher Contributors</developer_name>
-  <summary>Custom Minecraft Launcher to easily manage multiple Minecraft installations at once</summary>
+  <summary>A custom launcher for Minecraft that allows you to easily manage multiple installations of Minecraft at once</summary>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>GPL-3.0-only</project_license>
   <description>
-    <p>Electry Launcher is a custom launcher for Minecraft that focuses on predictability, long term stability and simplicity.</p>
+    <p>Prism Launcher is a custom launcher for Minecraft that focuses on predictability, long term stability and simplicity.</p>
     <p>Features:</p>
     <ul>
       <li>Easily install game modifications, such as Fabric, Forge and Quilt</li>

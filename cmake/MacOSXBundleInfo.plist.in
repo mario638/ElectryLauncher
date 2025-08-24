@@ -57,7 +57,7 @@
                 <string>mrpack</string>
             </array>
             <key>CFBundleTypeName</key>
-            <string>Prism Launcher instance</string>
+            <string>Electry Launcher instance</string>
             <key>CFBundleTypeOSTypes</key>
             <array>
                 <string>TEXT</string>
@@ -83,10 +83,10 @@
         </dict>
         <dict>
             <key>CFBundleURLName</key>
-            <string>Prismlauncher</string>
+            <string>ElectryLauncher</string>
             <key>CFBundleURLSchemes</key>
             <array>
-            <string>prismlauncher</string>
+            <string>electrylauncher</string>
             </array>
         </dict>
     </array>
