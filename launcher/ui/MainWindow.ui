@@ -472,7 +472,7 @@
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Electry Launcher (zip)</string>
+    <string>Prism Launcher (zip)</string>
    </property>
   </action>
   <action name="actionExportInstanceMrPack">
@@ -535,7 +535,7 @@
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Cerrar &amp;Window</string>
+    <string>Close &amp;Window</string>
    </property>
    <property name="toolTip">
     <string>Close the current window</string>
@@ -726,7 +726,7 @@
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>Ayuda</string>
+    <string>Help</string>
    </property>
    <property name="toolTip">
     <string>Get help with %1 or Minecraft.</string>
@@ -747,7 +747,7 @@
      <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
-    <string>%1 &amp;Ayuda</string>
+    <string>%1 &amp;Help</string>
    </property>
    <property name="toolTip">
     <string>Open the %1 wiki</string>

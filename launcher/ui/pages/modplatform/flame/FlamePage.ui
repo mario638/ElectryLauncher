@@ -19,7 +19,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Nota: CurseForge permite a los creadores bloquear el acceso a herramientas de terceros como Electry Launcher. Por lo tanto, es posible que tengas que descargar manualmente algunos mods para poder instalar un paquete de mods.</string>
+      <string>Note: CurseForge allows creators to block access to third-party tools like Prism Launcher. As such, you may need to manually download some mods to be able to install a modpack.</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -32,16 +32,16 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QLineEdit" name="searchEdit">
-       <property name="placeholderText">
-        <string>Search and filter...</string>
+      <widget class="QPushButton" name="filterButton">
+       <property name="text">
+        <string>Filter options</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="filterButton">
-       <property name="text">
-        <string>Filter</string>
+      <widget class="QLineEdit" name="searchEdit">
+       <property name="placeholderText">
+        <string>Search and filter...</string>
        </property>
       </widget>
      </item>

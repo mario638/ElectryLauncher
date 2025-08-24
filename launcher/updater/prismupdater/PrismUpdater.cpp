@@ -1111,13 +1111,13 @@ void PrismUpdaterApp::backupAppDir()
     if (file_list.isEmpty()) {
         // best guess
         if (BuildConfig.BUILD_ARTIFACT.toLower().contains("linux")) {
-            file_list.append({ "ElectryLauncher", "bin", "share", "lib" });
+            file_list.append({ "PrismLauncher", "bin", "share", "lib" });
         } else {  // windows by process of elimination
             file_list.append({
                 "jars",
-                "electrylauncher.exe",
-                "electrylauncher_filelink.exe",
-                "electrylauncher_updater.exe",
+                "prismlauncher.exe",
+                "prismlauncher_filelink.exe",
+                "prismlauncher_updater.exe",
                 "qtlogging.ini",
                 "imageformats",
                 "iconengines",
