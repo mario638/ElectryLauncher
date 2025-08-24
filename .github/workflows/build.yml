@@ -119,28 +119,6 @@ jobs:
         with:
           submodules: "true"
 
-      - name: "Setup MSYS2"
-        if: runner.os == 'Windows' && matrix.msystem != ''
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: ${{ matrix.msystem }}
-          update: true
-          install: >-
-            git
-          pacboy: >-
-            toolchain:p
-            cmake:p
-            extra-cmake-modules:p
-            ninja:p
-            qt6-base:p
-            qt6-svg:p
-            qt6-imageformats:p
-            quazip-qt6:p
-            ccache:p
-            qt6-5compat:p
-            qt6-networkauth:p
-            cmark:p
-
       - name: Force newer ccache
         if: runner.os == 'Windows' && matrix.msystem == '' && inputs.build_type == 'Debug'
         run: |
