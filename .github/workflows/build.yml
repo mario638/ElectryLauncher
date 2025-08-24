@@ -367,6 +367,7 @@ jobs:
         run: |
           # Remove MinGW from PATH to avoid CMake using mingw objdump
           $env:PATH = ($env:PATH -replace 'C:/mingw64/bin;', '')
+          [System.Environment]::SetEnvironmentVariable('PATH', $env:PATH, [System.EnvironmentVariableTarget]::Process)
           cmake --install ${{ env.BUILD_DIR }} --config ${{ inputs.build_type }}
 
           cd ${{ github.workspace }}

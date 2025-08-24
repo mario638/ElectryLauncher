@@ -426,7 +426,11 @@ if(UNIX AND APPLE)
     endif()
 
     # install as bundle
-    set(INSTALL_BUNDLE "full" CACHE STRING "Use fixup_bundle to bundle dependencies")
+    if (MSVC)
+    set(INSTALL_BUNDLE "none" CACHE STRING "Skip fixup_bundle on MSVC" FORCE)
+else()
+    set(INSTALL_BUNDLE "full" CACHE STRING "Use fixup_bundle to bundle dependencies" FORCE)
+endif()
 
     # Add the icon
     install(FILES ${Launcher_Branding_ICNS} DESTINATION ${RESOURCES_DEST_DIR} RENAME ${Launcher_Name}.icns)
