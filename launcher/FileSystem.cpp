@@ -123,16 +123,19 @@ namespace fs = ghc::filesystem;
 
 #if defined(__MINGW32__)
 
-#ifndef _DUPLICATE_EXTENTS_DATA
-#define _DUPLICATE_EXTENTS_DATA
-struct _DUPLICATE_EXTENTS_DATA {
-    HANDLE FileHandle;
-    LARGE_INTEGER SourceFileOffset;
-    LARGE_INTEGER TargetFileOffset;
-    LARGE_INTEGER ByteCount;
-};
-#endif
+#ifdef _WIN32
+    #include <winioctl.h>
+#else
+    struct _DUPLICATE_EXTENTS_DATA {
+        void* FileHandle;
+        long long SourceFileOffset;
+        long long TargetFileOffset;
+        long long ByteCount;
+    };
 
+    using DUPLICATE_EXTENTS_DATA = _DUPLICATE_EXTENTS_DATA;
+    using PDUPLICATE_EXTENTS_DATA = _DUPLICATE_EXTENTS_DATA*;
+#endif
 
 using DUPLICATE_EXTENTS_DATA = _DUPLICATE_EXTENTS_DATA;
 using PDUPLICATE_EXTENTS_DATA = _DUPLICATE_EXTENTS_DATA*;
