@@ -152,6 +152,11 @@ jobs:
         run: |
           choco install ccache --version 4.7.1
 
+      - name: Instalar Microsoft Visual C++ Redistributable
+        if: runner.os == 'Windows'
+        run: |
+          choco install vcredist2015 -y
+
       - name: Setup ccache
         if: (runner.os != 'Windows' || matrix.msystem == '') && inputs.build_type == 'Debug'
         uses: hendrikmuhs/ccache-action@v1.2.17
