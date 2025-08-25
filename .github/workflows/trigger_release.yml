@@ -68,7 +68,7 @@ jobs:
             test -n "${INST}" || zip -r -9 "../${NAME}-${{ env.VERSION }}.zip" *
             cd ..
           done
-          for d in ElectryLauncher-Windows; do
+          for d in ElectryLauncher-Windows*; do
             cd "${d}" || continue
             LEGACY="$(echo -n ${d} | grep -o Legacy || true)"
             ARM64="$(echo -n ${d} | grep -o arm64 || true)"
