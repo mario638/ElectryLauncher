@@ -147,6 +147,13 @@ jobs:
             qt6-networkauth:p
             cmark:p
 
+      - name: Setup MinGW
+        if: runner.os == 'Windows'
+        uses: egor-tensin/setup-mingw@v2
+        with:
+          version: 'latest'
+          arch: 'x64'
+
       - name: Force newer ccache
         if: runner.os == 'Windows' && matrix.msystem == '' && inputs.build_type == 'Debug'
         run: |
