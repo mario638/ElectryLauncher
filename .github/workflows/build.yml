@@ -133,6 +133,20 @@ jobs:
           install: >-
             git
             mingw-w64-x86_64-binutils
+            mingw-w64-ucrt-x86_64-gcc
+            mingw-w64-ucrt-x86_64-crt
+            mingw-w64-ucrt-x86_64-binutils
+            mingw-w64-ucrt-x86_64-cmake
+            mingw-w64-ucrt-x86_64-extra-cmake-modules
+            mingw-w64-ucrt-x86_64-ninja
+            mingw-w64-ucrt-x86_64-qt6-base
+            mingw-w64-ucrt-x86_64-qt6-svg
+            mingw-w64-ucrt-x86_64-qt6-imageformats
+            mingw-w64-ucrt-x86_64-quazip-qt6
+            mingw-w64-ucrt-x86_64-ccache
+            mingw-w64-ucrt-x86_64-qt6-5compat
+            mingw-w64-ucrt-x86_64-qt6-networkauth
+            mingw-w64-ucrt-x86_64-cmark
           pacboy: >-
             toolchain:p
             cmake:p
@@ -146,13 +160,6 @@ jobs:
             qt6-5compat:p
             qt6-networkauth:p
             cmark:p
-
-      - name: Setup MinGW
-        if: runner.os == 'Windows'
-        uses: egor-tensin/setup-mingw@v2
-        with:
-          version: 'latest'
-          arch: 'x64'
 
       - name: Force newer ccache
         if: runner.os == 'Windows' && matrix.msystem == '' && inputs.build_type == 'Debug'
