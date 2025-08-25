@@ -24,10 +24,15 @@ set(CMAKE_JAVA_TARGET_OUTPUT_DIR ${PROJECT_BINARY_DIR}/jars)
 ######## Set compiler flags ########
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 set(CMAKE_C_STANDARD_REQUIRED true)
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_C_STANDARD 11)
 include(InstallRequiredSystemLibraries)
 include(GenerateExportHeader)
+if (MSVC)
+    # nada, MSVC no muestra este warning
+else()
+    add_compile_options(-Wno-gnu-zero-variadic-macro-arguments)
+endif()
 if(MSVC)
     # /GS Adds buffer security checks, default on but incuded anyway to mirror gcc's fstack-protector flag
     # /permissive- specify standards-conforming compiler behavior, also enabled by Qt6, default on with std:c++20
