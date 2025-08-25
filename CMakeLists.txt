@@ -199,7 +199,7 @@ set(Launcher_FMLLIBS_BASE_URL "https://files.prismlauncher.org/fmllibs/" CACHE S
 
 ######## Set version numbers ########
 set(Launcher_VERSION_MAJOR 10)
-set(Launcher_VERSION_MINOR 0)
+set(Launcher_VERSION_MINOR 1)
 
 set(Launcher_VERSION_NAME "${Launcher_VERSION_MAJOR}.${Launcher_VERSION_MINOR}")
 set(Launcher_VERSION_NAME4 "${Launcher_VERSION_MAJOR}.${Launcher_VERSION_MINOR}.0.0")
@@ -482,9 +482,8 @@ elseif(UNIX)
 
         # Apps to bundle
         set(APPS "\${CMAKE_INSTALL_PREFIX}/bin/${Launcher_APP_BINARY_NAME}")
-        set(dlls_dir "${CMAKE_SOURCE_DIR}/cmake/dlls")
         # directories to look for dependencies
-        set(DIRS ${QT_LIBS_DIR} ${QT_LIBEXECS_DIR} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} ${dlls_dir})
+        set(DIRS ${QT_LIBS_DIR} ${QT_LIBEXECS_DIR} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     endif()
 
     if(Launcher_ManPage)
@@ -504,9 +503,9 @@ elseif(WIN32)
 
     # Apps to bundle
     set(APPS "\${CMAKE_INSTALL_PREFIX}/${Launcher_Name}.exe")
-
+    SET(dlls_dir "cmake/dlls")
     # directories to look for dependencies
-    set(DIRS ${QT_LIBS_DIR} ${QT_LIBEXECS_DIR} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    set(DIRS ${QT_LIBS_DIR} ${QT_LIBEXECS_DIR} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} ${dlls_dir})
 
     # install as bundle
     set(INSTALL_BUNDLE "full" CACHE STRING "Use fixup_bundle to bundle dependencies")
