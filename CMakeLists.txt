@@ -22,23 +22,6 @@ endif()
 set(CMAKE_JAVA_TARGET_OUTPUT_DIR ${PROJECT_BINARY_DIR}/jars)
 
 ######## Set compiler flags ########
-set(IGNORE_SYSTEM_DLLS
-    api-ms-win-crt-runtime-l1-1-0.dll
-    api-ms-win-crt-private-l1-1-0.dll
-    api-ms-win-crt-string-l1-1-0.dll
-    api-ms-win-crt-stdio-l1-1-0.dll
-    api-ms-win-crt-utility-l1-1-0.dll
-    api-ms-win-crt-heap-l1-1-0.dll
-    api-ms-win-crt-math-l1-1-0.dll
-)
-
-fixup_bundle(
-    "${APP_EXECUTABLE}"
-    "${APP_LIBS}"
-    "${DIRS}"
-    IGNORE_ITEM ${IGNORE_SYSTEM_DLLS}
-)
-
 set(CMAKE_CXX_STANDARD_REQUIRED true)
 set(CMAKE_C_STANDARD_REQUIRED true)
 set(CMAKE_CXX_STANDARD 17)
