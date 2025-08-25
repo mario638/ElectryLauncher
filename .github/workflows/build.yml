@@ -198,6 +198,12 @@ jobs:
           tools: ${{ matrix.qt_tools }}
           cache: ${{ inputs.is_qt_cached }}
 
+      - name: Install MSVC (Windows MSVC)
+        if: runner.os == 'Windows' # We want this for MinGW builds as well, as we need SignTool
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          vsversion: 2022
+          arch: ${{ matrix.vcvars_arch }}
 
       - name: Prepare AppImage (Linux)
         if: runner.os == 'Linux' && matrix.qt_ver != 5
