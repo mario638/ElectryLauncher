@@ -82,6 +82,32 @@ jobs:
             nscurl_tag: "v24.9.26.122"
             nscurl_sha256: "AEE6C4BE3CB6455858E9C1EE4B3AFE0DB9960FA03FE99CCDEDC28390D57CCBB0"
 
+          - os: windows-2022
+            name: "Windows-MSVC-x64"
+            msystem: ""
+            architecture: "x64"
+            vcvars_arch: "x64"
+            qt_ver: 6
+            qt_host: "windows"
+            qt_arch: "win64_msvc2019_64"
+            qt_version: "6.8.1"
+            qt_modules: "qt5compat qtimageformats qtnetworkauth"
+            nscurl_tag: "v24.9.26.122"
+            nscurl_sha256: "AEE6C4BE3CB6455858E9C1EE4B3AFE0DB9960FA03FE99CCDEDC28390D57CCBB0"
+
+          - os: windows-2022
+            name: "Windows-MSVC-x86"
+            msystem: ""
+            architecture: "x86"
+            vcvars_arch: "x86"
+            qt_ver: 6
+            qt_host: "windows"
+            qt_arch: "win32_msvc2019"
+            qt_version: "6.8.1"
+            qt_modules: "qt5compat qtimageformats qtnetworkauth"
+            nscurl_tag: "v24.9.26.122"
+            nscurl_sha256: "AEE6C4BE3CB6455858E9C1EE4B3AFE0DB9960FA03FE99CCDEDC28390D57CCBB0"
+
           - os: macos-14
             name: macOS
             macosx_deployment_target: 11.0
