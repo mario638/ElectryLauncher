@@ -431,11 +431,25 @@ if(UNIX AND APPLE)
         set(Launcher_ENABLE_UPDATER YES)
     endif()
 
-    # install as bundle
-    if (MSVC)
-    set(INSTALL_BUNDLE "none" CACHE STRING "Skip fixup_bundle on MSVC" FORCE)
+# Define si hacemos bundle
+if (MSVC)
+    set(INSTALL_BUNDLE "full" CACHE STRING "Use fixup_bundle for MSVC" FORCE)
 else()
-    set(INSTALL_BUNDLE "full" CACHE STRING "Use fixup_bundle to bundle dependencies" FORCE)
+    # Para MinGW/Clang, no hace falta hacer fixup_bundle
+    set(INSTALL_BUNDLE "none" CACHE STRING "Skip fixup_bundle for MinGW/Clang" FORCE)
+endif()
+
+# Luego en el paso de install
+if (INSTALL_BUNDLE STREQUAL "full")
+    message(STATUS "Running fixup_bundle...")
+    fixup_bundle(
+        "${APP_EXECUTABLE}"
+        "${APP_LIBS}"
+        "${DIRS}"
+        IGNORE_ITEM ${IGNORE_SYSTEM_DLLS}
+    )
+else()
+    message(STATUS "Skipping fixup_bundle for MinGW/Clang")
 endif()
 
     # Add the icon
