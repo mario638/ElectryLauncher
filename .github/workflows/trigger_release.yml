@@ -83,6 +83,9 @@ jobs:
             ElectryLauncher-Linux-x86_64.AppImage
             ElectryLauncher-Linux-x86_64.AppImage.zsync
             ElectryLauncher-Linux-Qt6-Portable-${{ env.VERSION }}.tar.gz
+            ElectryLauncher-Windows-MinGW-w64-Portable-${{ env.VERSION }}.exe
+            ElectryLauncher-Windows-MinGW-w64-Setup-${{ env.VERSION }}.exe
+            ElectryLauncher-Windows-MinGW-w64-${{ env.VERSION }}.exe
             ElectryLauncher-Windows-MSVC-arm64-${{ env.VERSION }}.zip
             ElectryLauncher-Windows-MSVC-arm64-Portable-${{ env.VERSION }}.zip
             ElectryLauncher-Windows-MSVC-arm64-Setup-${{ env.VERSION }}.exe
