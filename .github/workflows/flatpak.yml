@@ -2,61 +2,22 @@ name: Flatpak
 
 on:
   push:
-    branches:
-      - "develop"
-      - "release-*"
+    paths-ignore:
+      - "**.md"
+      - "**/LICENSE"
+      - ".github/ISSUE_TEMPLATE/**"
+      - ".markdownlint**"
+      - "nix/**"
     # We don't do anything with these artifacts on releases. They go to Flathub
     tags-ignore:
       - "*"
-    paths:
-      # File types
-      - "**.cpp"
-      - "**.h"
-      - "**.java"
-      - "**.ui"
-
-      # Build files
-      - "flatpak/**"
-
-      # Directories
-      - "buildconfig/**"
-      - "cmake/**"
-      - "launcher/**"
-      - "libraries/**"
-      - "program_info/**"
-      - "tests/**"
-
-      # Files
-      - "CMakeLists.txt"
-      - "COPYING.md"
-
-      # Workflows
-      - ".github/workflows/flatpak.yml"
   pull_request:
-    paths:
-      # File types
-      - "**.cpp"
-      - "**.h"
-      - "**.java"
-      - "**.ui"
-
-      # Build files
-      - "flatpak/**"
-
-      # Directories
-      - "buildconfig/**"
-      - "cmake/**"
-      - "launcher/**"
-      - "libraries/**"
-      - "program_info/**"
-      - "tests/**"
-
-      # Files
-      - "CMakeLists.txt"
-      - "COPYING.md"
-
-      # Workflows
-      - ".github/workflows/flatpak.yml"
+    paths-ignore:
+      - "**.md"
+      - "**/LICENSE"
+      - ".github/ISSUE_TEMPLATE/**"
+      - ".markdownlint**"
+      - "nix/**"
   workflow_dispatch:
 
 permissions:
@@ -84,7 +45,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
         with:
           submodules: true
 
