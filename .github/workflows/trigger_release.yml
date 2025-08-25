@@ -68,6 +68,20 @@ jobs:
             test -n "${INST}" || zip -r -9 "../${NAME}-${{ env.VERSION }}.zip" *
             cd ..
           done
+          for d in ElectryLauncher-Windows-MinGW*; do
+            cd "${d}" || continue
+            LEGACY="$(echo -n ${d} | grep -o Legacy || true)"
+            ARM64="$(echo -n ${d} | grep -o arm64 || true)"
+            INST="$(echo -n ${d} | grep -o Setup || true)"
+            PORT="$(echo -n ${d} | grep -o Portable || true)"
+            NAME="ElectryLauncher-Windows-MinGW"
+            test -z "${LEGACY}" || NAME="${NAME}-Legacy"
+            test -z "${ARM64}" || NAME="${NAME}-arm64"
+            test -z "${PORT}" || NAME="${NAME}-Portable"
+            test -z "${INST}" || mv ElectryLauncher-*.exe ../${NAME}-Setup-${{ env.VERSION }}.exe
+            test -n "${INST}" || zip -r -9 "../${NAME}-${{ env.VERSION }}.zip" *
+            cd ..
+          done
 
       - name: Create release
         id: create_release

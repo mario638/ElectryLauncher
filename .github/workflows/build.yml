@@ -74,19 +74,6 @@ jobs:
             msystem: clang64
             vcvars_arch: "amd64_x86"
 
-          - os: windows-2022
-            name: "Windows-MSVC-arm64"
-            msystem: ""
-            architecture: "arm64"
-            vcvars_arch: "amd64_arm64"
-            qt_ver: 6
-            qt_host: "windows"
-            qt_arch: "win64_msvc2022_arm64_cross_compiled"
-            qt_version: "6.8.1"
-            qt_modules: "qt5compat qtimageformats qtnetworkauth"
-            nscurl_tag: "v24.9.26.122"
-            nscurl_sha256: "AEE6C4BE3CB6455858E9C1EE4B3AFE0DB9960FA03FE99CCDEDC28390D57CCBB0"
-
           - os: macos-14
             name: macOS
             macosx_deployment_target: 11.0
@@ -178,6 +165,12 @@ jobs:
           restore-keys: |
             ${{ matrix.os }}-mingw-w64-ccache
 
+      - name: Install MSVC (Windows MSVC)
+        if: runner.os == 'Windows' # We want this for MinGW builds as well, as we need SignTool
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          vsversion: 2022
+          arch: ${{ matrix.vcvars_arch }}
       - name: Setup ccache (Windows MinGW-w64)
         if: runner.os == 'Windows' && matrix.msystem != '' && inputs.build_type == 'Debug'
         shell: msys2 {0}
@@ -187,18 +180,6 @@ jobs:
           ccache --set-config=compression=true
           ccache -p  # Show config
           ccache -z  # Zero stats
-
-      - name: Configure ccache (Windows MSVC)
-        if: ${{ runner.os == 'Windows' && matrix.msystem == '' && inputs.build_type == 'Debug' }}
-        run: |
-          # https://github.com/ccache/ccache/wiki/MS-Visual-Studio (I coudn't figure out the compiler prefix)
-          Copy-Item C:/ProgramData/chocolatey/lib/ccache/tools/ccache-4.7.1-windows-x86_64/ccache.exe -Destination C:/ProgramData/chocolatey/lib/ccache/tools/ccache-4.7.1-windows-x86_64/cl.exe
-          echo "CLToolExe=cl.exe" >> $env:GITHUB_ENV
-          echo "CLToolPath=C:/ProgramData/chocolatey/lib/ccache/tools/ccache-4.7.1-windows-x86_64/" >> $env:GITHUB_ENV
-          echo "TrackFileAccess=false" >> $env:GITHUB_ENV
-          # Needed for ccache, but also speeds up compile
-          echo "UseMultiToolTask=true" >> $env:GITHUB_ENV
-
 
       - name: Set short version
         shell: bash
@@ -246,13 +227,6 @@ jobs:
           modules: ${{ matrix.qt_modules }}
           tools: ${{ matrix.qt_tools }}
           cache: ${{ inputs.is_qt_cached }}
-
-      - name: Install MSVC (Windows MSVC)
-        if: runner.os == 'Windows' # We want this for MinGW builds as well, as we need SignTool
-        uses: ilammy/msvc-dev-cmd@v1
-        with:
-          vsversion: 2022
-          arch: ${{ matrix.vcvars_arch }}
 
       - name: Prepare AppImage (Linux)
         if: runner.os == 'Linux' && matrix.qt_ver != 5
@@ -303,16 +277,6 @@ jobs:
         run: |
           cmake -S . -B ${{ env.BUILD_DIR }} -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_DIR }} -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DENABLE_LTO=ON -DLauncher_ENABLE_JAVA_DOWNLOADER=ON -DLauncher_BUILD_PLATFORM=official -DCMAKE_C_COMPILER_LAUNCHER=${{ env.CCACHE_VAR }} -DCMAKE_CXX_COMPILER_LAUNCHER=${{ env.CCACHE_VAR }} -DLauncher_QT_VERSION_MAJOR=6 -DCMAKE_OBJDUMP=/mingw64/bin/objdump.exe -DLauncher_BUILD_ARTIFACT=${{ matrix.name }}-Qt${{ matrix.qt_ver }} -G Ninja
 
-      - name: Configure CMake (Windows MSVC)
-        if: runner.os == 'Windows' && matrix.msystem == '' && matrix.architecture != 'arm64'
-        run: |
-          cmake -S . -B ${{ env.BUILD_DIR }} -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_DIR }} -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DENABLE_LTO=ON -DLauncher_ENABLE_JAVA_DOWNLOADER=ON -DLauncher_BUILD_PLATFORM=official -DLauncher_QT_VERSION_MAJOR=${{ matrix.qt_ver }} -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreadedDLL" -DLauncher_FORCE_BUNDLED_LIBS=ON  -DLauncher_BUILD_ARTIFACT=${{ matrix.name }}-Qt${{ matrix.qt_ver }} -G Ninja
-
-      - name: Configure CMake (Windows MSVC arm64)
-        if: runner.os == 'Windows' && matrix.msystem == '' && matrix.architecture == 'arm64'
-        run: |
-          cmake -S . -B ${{ env.BUILD_DIR }} -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_DIR }} -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DENABLE_LTO=ON -DLauncher_ENABLE_JAVA_DOWNLOADER=ON -DLauncher_BUILD_PLATFORM=official -DLauncher_QT_VERSION_MAJOR=${{ matrix.qt_ver }} -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreadedDLL" -A${{ matrix.architecture}} -DLauncher_FORCE_BUNDLED_LIBS=ON  -DLauncher_BUILD_ARTIFACT=${{ matrix.name }}-Qt${{ matrix.qt_ver }}
-
       - name: Configure CMake (Linux)
         if: runner.os == 'Linux'
         run: |
@@ -333,11 +297,6 @@ jobs:
         run: |
           cmake --build ${{ env.BUILD_DIR }}
 
-      - name: Build (Windows MSVC)
-        if: runner.os == 'Windows' && matrix.msystem == ''
-        run: |
-          cmake --build ${{ env.BUILD_DIR }} --config ${{ inputs.build_type }}
-
       ##
       # TEST
       ##
@@ -352,11 +311,6 @@ jobs:
         shell: msys2 {0}
         run: |
           ctest -E "^example64|example$" --test-dir build --output-on-failure
-
-      - name: Test (Windows MSVC)
-        if: runner.os == 'Windows' && matrix.msystem == '' && matrix.architecture != 'arm64'
-        run: |
-          ctest -E "^example64|example$" --test-dir build --output-on-failure -C ${{ inputs.build_type }}
 
       ##
       # PACKAGE BUILDS
@@ -440,15 +394,6 @@ jobs:
           touch ${{ env.INSTALL_DIR }}/manifest.txt
           for l in $(find ${{ env.INSTALL_DIR }} -type f); do l=$(cygpath -u $l); l=${l#$(pwd)/}; l=${l#${{ env.INSTALL_DIR }}/}; l=${l#./}; echo $l; done >> ${{ env.INSTALL_DIR }}/manifest.txt
 
-      - name: Package (Windows MSVC)
-        if: runner.os == 'Windows' && matrix.msystem == ''
-        run: |
-          cmake --install ${{ env.BUILD_DIR }} --config ${{ inputs.build_type }}
-
-          cd ${{ github.workspace }}
-
-          Get-ChildItem ${{ env.INSTALL_DIR }} -Recurse | ForEach FullName | Resolve-Path -Relative | %{ $_.TrimStart('.\') } | %{ $_.TrimStart('${{ env.INSTALL_DIR }}') } | %{ $_.TrimStart('\') } | Out-File -FilePath ${{ env.INSTALL_DIR }}/manifest.txt
-
       - name: Fetch codesign certificate (Windows)
         if: runner.os == 'Windows'
         shell: bash # yes, we are not using MSYS2 or PowerShell here
@@ -474,14 +419,6 @@ jobs:
           cmake --install ${{ env.BUILD_DIR }} --prefix ${{ env.INSTALL_PORTABLE_DIR }} --component portable
           for l in $(find ${{ env.INSTALL_PORTABLE_DIR }} -type f); do l=$(cygpath -u $l); l=${l#$(pwd)/}; l=${l#${{ env.INSTALL_PORTABLE_DIR }}/}; l=${l#./}; echo $l; done >> ${{ env.INSTALL_PORTABLE_DIR }}/manifest.txt
 
-      - name: Package (Windows MSVC, portable)
-        if: runner.os == 'Windows' && matrix.msystem == ''
-        run: |
-          cp -r ${{ env.INSTALL_DIR }} ${{ env.INSTALL_PORTABLE_DIR }}  # cmake install on Windows is slow, let's just copy instead
-          cmake --install ${{ env.BUILD_DIR }} --prefix ${{ env.INSTALL_PORTABLE_DIR }} --component portable
-
-          Get-ChildItem ${{ env.INSTALL_PORTABLE_DIR }} -Recurse | ForEach FullName | Resolve-Path -Relative | %{ $_.TrimStart('.\') } | %{ $_.TrimStart('${{ env.INSTALL_PORTABLE_DIR }}') } | %{ $_.TrimStart('\') } | Out-File -FilePath ${{ env.INSTALL_DIR }}/manifest.txt
-
       - name: Package (Windows, installer)
         if: runner.os == 'Windows'
         run: |
@@ -493,7 +430,7 @@ jobs:
               echo "::error:: NSCurl.zip sha256 mismatch"
               exit 1
             }
-            Expand-Archive -Path NSISPlugins\NScurl.zip -DestinationPath NSISPlugins\NScurl
+            Expand-Archive -Path NSISPlugins\Nscurl.zip -DestinationPath NSISPlugins\Nscurl
           }
           cd ${{ env.INSTALL_DIR }}
           makensis -NOCD "${{ github.workspace }}/${{ env.BUILD_DIR }}/program_info/win_install.nsi"

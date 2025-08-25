@@ -430,7 +430,6 @@ if(UNIX AND APPLE)
         set(Launcher_ENABLE_UPDATER YES)
     endif()
 
-include(InstallRequiredSystemLibraries)
 # Define si hacemos bundle
 if (MSVC)
     set(INSTALL_BUNDLE "full" CACHE STRING "Use fixup_bundle for MSVC" FORCE)
@@ -495,6 +494,7 @@ elseif(UNIX)
     install(PROGRAMS "${CMAKE_CURRENT_BINARY_DIR}/LauncherScript" DESTINATION "." RENAME ${Launcher_Name} COMPONENT portable EXCLUDE_FROM_ALL)
 
 elseif(WIN32)
+    include(InstallRequiredSystemLibraries)
     set(BINARY_DEST_DIR ".")
     set(LIBRARY_DEST_DIR ".")
     set(PLUGIN_DEST_DIR ".")
