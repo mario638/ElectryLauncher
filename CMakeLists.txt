@@ -26,7 +26,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED true)
 set(CMAKE_C_STANDARD_REQUIRED true)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_C_STANDARD 11)
-include(InstallRequiredSystemLibraries)
 include(GenerateExportHeader)
 if (MSVC)
     # nada, MSVC no muestra este warning
@@ -431,6 +430,7 @@ if(UNIX AND APPLE)
         set(Launcher_ENABLE_UPDATER YES)
     endif()
 
+include(InstallRequiredSystemLibraries)
 # Define si hacemos bundle
 if (MSVC)
     set(INSTALL_BUNDLE "full" CACHE STRING "Use fixup_bundle for MSVC" FORCE)
