@@ -77,13 +77,13 @@ jobs:
           - os: windows-2022
             name: "Windows-MSVC"
             msystem: ""
-            architecture: ""
-            vcvars_arch: "amd64_x86"
+            architecture: "x86_64"
+            vcvars_arch: "amd64"
             qt_ver: 6
             qt_host: "windows"
-            qt_arch: "win64_msvc2022_x86_64_cross_compiled"
+            qt_arch: "win64_msvc2022_64"
             qt_version: "6.8.1"
-            qt_modules: "qt5compat qtimageformats qtnetworkauth"
+            qt_modules: "qt6base qt5compat qtimageformats qtnetworkauth"
             nscurl_tag: "v24.9.26.122"
             nscurl_sha256: "AEE6C4BE3CB6455858E9C1EE4B3AFE0DB9960FA03FE99CCDEDC28390D57CCBB0"
 
@@ -152,11 +152,6 @@ jobs:
         run: |
           choco install ccache --version 4.7.1
 
-      - name: Instalar Microsoft Visual C++ Redistributable
-        if: runner.os == 'Windows'
-        run: |
-          choco install vcredist2015 -y
-
       - name: Setup ccache
         if: (runner.os != 'Windows' || matrix.msystem == '') && inputs.build_type == 'Debug'
         uses: hendrikmuhs/ccache-action@v1.2.17
@@ -219,7 +214,7 @@ jobs:
           brew install ninja extra-cmake-modules
 
       - name: Install host Qt (Windows MSVC arm64)
-        if: runner.os == 'Windows'
+        if: runner.os == 'Windows' && matrix.architecture == 'arm64'
         uses: jurplel/install-qt-action@v4
         with:
           aqtversion: "==3.1.*"
@@ -230,7 +225,7 @@ jobs:
           arch: ${{ matrix.qt_arch }}
           modules: ${{ matrix.qt_modules }}
           cache: ${{ inputs.is_qt_cached }}
-          cache-key-prefix: host-qt-x86_64-windows
+          cache-key-prefix: host-qt-arm64-windows
           dir: ${{ github.workspace }}\HostQt
           set-env: false
 
@@ -273,7 +268,7 @@ jobs:
           sudo apt install libopengl0
 
       - name: Add QT_HOST_PATH var (Windows MSVC arm64)
-        if: runner.os == 'Windows'
+        if: runner.os == 'Windows' && matrix.architecture == 'arm64'
         run: |
           echo "QT_HOST_PATH=${{ github.workspace }}\HostQt\Qt\${{ matrix.qt_version }}\msvc2022_64" >> $env:GITHUB_ENV
 
@@ -298,18 +293,18 @@ jobs:
           cmake -S . -B ${{ env.BUILD_DIR }} -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_DIR }} -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DENABLE_LTO=ON -DLauncher_ENABLE_JAVA_DOWNLOADER=ON -DLauncher_BUILD_PLATFORM=official -DCMAKE_C_COMPILER_LAUNCHER=${{ env.CCACHE_VAR }} -DCMAKE_CXX_COMPILER_LAUNCHER=${{ env.CCACHE_VAR }} -DLauncher_QT_VERSION_MAJOR=${{ matrix.qt_ver }} -DMACOSX_SPARKLE_UPDATE_PUBLIC_KEY="" -DMACOSX_SPARKLE_UPDATE_FEED_URL="" -DCMAKE_OSX_ARCHITECTURES="x86_64" -G Ninja
 
       - name: Configure CMake (Windows MinGW-w64)
-        if: runner.os == 'Windows' && matrix.msystem != '' && matrix.architecture != 'mingw64'
+        if: runner.os == 'Windows' && matrix.msystem != ''
         shell: msys2 {0}
         run: |
           cmake -S . -B ${{ env.BUILD_DIR }} -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_DIR }} -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DENABLE_LTO=ON -DLauncher_ENABLE_JAVA_DOWNLOADER=ON -DLauncher_BUILD_PLATFORM=official -DCMAKE_C_COMPILER_LAUNCHER=${{ env.CCACHE_VAR }} -DCMAKE_CXX_COMPILER_LAUNCHER=${{ env.CCACHE_VAR }} -DLauncher_QT_VERSION_MAJOR=6 -DCMAKE_OBJDUMP=/mingw64/bin/objdump.exe -DLauncher_BUILD_ARTIFACT=${{ matrix.name }}-Qt${{ matrix.qt_ver }} -G Ninja
 
       - name: Configure CMake (Windows MSVC)
-        if: runner.os == 'Windows' && matrix.msystem == ''
+        if: runner.os == 'Windows' && matrix.msystem == '' && matrix.architecture != 'arm64'
         run: |
           cmake -S . -B ${{ env.BUILD_DIR }} -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_DIR }} -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DENABLE_LTO=ON -DLauncher_ENABLE_JAVA_DOWNLOADER=ON -DLauncher_BUILD_PLATFORM=official -DLauncher_QT_VERSION_MAJOR=${{ matrix.qt_ver }} -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreadedDLL" -DLauncher_FORCE_BUNDLED_LIBS=ON  -DLauncher_BUILD_ARTIFACT=${{ matrix.name }}-Qt${{ matrix.qt_ver }} -G Ninja
 
       - name: Configure CMake (Windows MSVC arm64)
-        if: runner.os == 'Windows' && matrix.msystem == ''
+        if: runner.os == 'Windows' && matrix.msystem == '' && matrix.architecture == 'arm64'
         run: |
           cmake -S . -B ${{ env.BUILD_DIR }} -DCMAKE_INSTALL_PREFIX=${{ env.INSTALL_DIR }} -DCMAKE_BUILD_TYPE=${{ inputs.build_type }} -DENABLE_LTO=ON -DLauncher_ENABLE_JAVA_DOWNLOADER=ON -DLauncher_BUILD_PLATFORM=official -DLauncher_QT_VERSION_MAJOR=${{ matrix.qt_ver }} -DCMAKE_MSVC_RUNTIME_LIBRARY="MultiThreadedDLL" -A${{ matrix.architecture}} -DLauncher_FORCE_BUNDLED_LIBS=ON  -DLauncher_BUILD_ARTIFACT=${{ matrix.name }}-Qt${{ matrix.qt_ver }}
 
@@ -354,7 +349,7 @@ jobs:
           ctest -E "^example64|example$" --test-dir build --output-on-failure
 
       - name: Test (Windows MSVC)
-        if: runner.os == 'Windows' && matrix.msystem == ''
+        if: runner.os == 'Windows' && matrix.msystem == '' && matrix.architecture != 'arm64'
         run: |
           ctest -E "^example64|example$" --test-dir build --output-on-failure -C ${{ inputs.build_type }}
 
