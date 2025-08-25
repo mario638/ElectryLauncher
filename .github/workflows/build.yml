@@ -71,7 +71,7 @@ jobs:
 
           - os: windows-2022
             name: "Windows-MinGW-w64"
-            msystem: clang64
+            msystem: ucrt64
             vcvars_arch: "amd64_x86"
 
           - os: windows-2022
@@ -132,7 +132,6 @@ jobs:
           update: true
           install: >-
             git
-            mingw-w64-x86_64-binutils
             mingw-w64-ucrt-x86_64-gcc
             mingw-w64-ucrt-x86_64-crt
             mingw-w64-ucrt-x86_64-binutils
