@@ -213,6 +213,9 @@ jobs:
           brew update
           brew install ninja extra-cmake-modules
 
+      - name: Install Qt
+        run: |
+          python -m aqt install-qt windows desktop 6.8.1 win64_msvc2022_x86_64_cross_compiled --outputdir ${{ github.workspace }}/HostQt/Qt --modules <replace_with_available_modules>    
       - name: Install host Qt (Windows MSVC arm64)
         if: runner.os == 'Windows'
         uses: jurplel/install-qt-action@v4
